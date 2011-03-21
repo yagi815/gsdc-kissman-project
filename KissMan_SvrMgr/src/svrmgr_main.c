@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 
 
@@ -58,11 +59,23 @@ int main()
 	printf("server_num: = %x\n", server_num);
 
 	write(sockfd, &server_num, sizeof(unsigned int));
-	read(sockfd, &server_num, sizeof(unsigned int));
-	printf("Server num from server = %d\n", server_num);
+
+	char buffer[1024];
+
+
+	int nbytes =  -1;
+
+	while (1) {
+
+		nbytes = read(sockfd, buffer, sizeof(buffer)-1);
+
+		if (nbytes == 0)
+			break;
+
+		printf("nbytes[%d]: strlen[%d]: %s\n", nbytes, strlen(buffer), buffer);
+		//bzero(buffer,1024);
+	}
+
 	close(sockfd);
-
-
-
 	return 0;
 }
