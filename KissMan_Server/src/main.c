@@ -24,6 +24,7 @@
 
 #define BUF_SIZE				1024
 #define CMD_LINE_LEN			1024
+#define MAX_QUEUE_LEN			10
 
 struct service_struct {
 	unsigned int server_num;
@@ -58,6 +59,8 @@ static int  identify_service(const unsigned int svr_code,
 static int execute_service(const int fd, const struct service_struct svc_struct);
 static int sam_service(const int fd, const unsigned int svc_type);
 
+static int get_valid_fd(const fd_set fds);
+
 static int server_num = 1;
 
 int main(int argc, char* argv[])
@@ -69,7 +72,7 @@ int main(int argc, char* argv[])
 	struct sockaddr_in client_address;
 
 	int ret;
-	fd_set readfds, testfds;
+	fd_set testfds, readfds;
 
 	server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -84,25 +87,25 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	ret = listen(server_sockfd, 5);
+	ret = listen(server_sockfd, MAX_QUEUE_LEN);
+
 	if (ret != 0) {
 		perror("Error: fail to listen\n");
 		exit(1);
 	}
-
 
 	FD_ZERO(&readfds);
 	FD_SET(server_sockfd, &readfds);
 
 	while(1)
 	{
-		int fd;
+		int fd = -1;
 		int nread;
 
+
+		printf("server waiting: fd[%d]\n", fd);
+
 		testfds = readfds;
-
-		printf("server waiting\n");
-
 		client_len = sizeof(client_address);
 		ret = select(FD_SETSIZE, &testfds, (fd_set *)0,
 										(fd_set *)0, (struct timeval *)0);
@@ -111,53 +114,63 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 
-		for (fd = 0; fd < FD_SETSIZE; fd++) {
-			if(!FD_ISSET(fd, &testfds))
-				continue;
+		if ((fd = get_valid_fd(testfds)) == -1)
+			continue;
 
-			if (fd == server_sockfd) {
-				client_len = sizeof(client_address);
-				client_sockfd = accept(server_sockfd,
-						(struct sockaddr *)&client_address, &client_len);
-				FD_SET(client_sockfd, &readfds);
-				printf("adding client on fd %d\n", client_sockfd);
-				continue;
-			}
+		if (fd == server_sockfd) {
+			client_len = sizeof(client_address);
+			client_sockfd = accept(server_sockfd,
+					(struct sockaddr *)&client_address, &client_len);
+			FD_SET(client_sockfd, &readfds);
+			printf("adding client on fd %d\n", client_sockfd);
+			continue;
+		}
 
+		ioctl(fd, FIONREAD, &nread);
 
-			ioctl(fd, FIONREAD, &nread);
+		if(nread == 0) {
+			close(fd);
+			FD_CLR(fd, &readfds);
+			printf("ioctl: removing client on fd %d\n", fd);
+			continue;
+		}
 
-			if(nread == 0) {
-				close(fd);
-				FD_CLR(fd, &readfds);
-				printf("ioctl: removing client on fd %d\n", fd);
-				continue;
-			}
+		unsigned int service_code;
+		struct service_struct svc_struct;
 
-			unsigned int service_code;
-			struct service_struct svc_struct;
+		ret = read(fd, &service_code, sizeof(unsigned int));
 
-			ret = read(fd, &service_code, sizeof(unsigned int));
-
-			if (!identify_service(service_code, &svc_struct))
+		if (!identify_service(service_code, &svc_struct))
+		{
+			if (!execute_service(fd, svc_struct))
 			{
-				if (!execute_service(fd, svc_struct))
-				{
-					printf("execute: removing client on fd %d\n", fd);
-				}
-				close(fd);
-				FD_CLR(fd, &readfds);
-
+				printf("execute: removing client on fd %d\n", fd);
 			}
-			else
-			{
-				printf("Error on fd %d\n", fd);
-				close(fd);
-				FD_CLR(fd, &readfds);
-			}
+			close(fd);
+			FD_CLR(fd, &readfds);
+		}
+		else
+		{
+			printf("Error on fd %d\n", fd);
+			close(fd);
+			FD_CLR(fd, &readfds);
 		}
 	}
 	return 0;
+}
+
+static int get_valid_fd(const fd_set fds)
+{
+
+	int fd;
+
+	for (fd = 0; fd < FD_SETSIZE; fd++)
+		if(FD_ISSET(fd, &fds)) break;
+
+	if (fd > FD_SETSIZE) return -1;
+
+	printf("fd === %d\n", fd);
+	return fd;
 }
 
 static int identify_service(const unsigned int svr_code,
@@ -165,6 +178,7 @@ static int identify_service(const unsigned int svr_code,
 {
 	unsigned int svr_num, svr_type;
 
+	printf("service code = %d\n", svr_code);
 	svr_num = get_server_num(svr_code);
 
 	if (svr_num != server_num) {
@@ -259,9 +273,12 @@ static int sam_service(const int fd, const unsigned int svc_type)
 
 	while (fgets(buffer, BUF_SIZE-1, fp) != NULL) {
 		nbytes = write(fd, &buffer, BUF_SIZE-1);
-		//printf("nbytes[%d]: strlen[%d]: %s\n", nbytes, (int)strlen(buffer), buffer);
+		printf("nbytes[%d]: strlen[%d]: %s\n", nbytes, (int)strlen(buffer), buffer);
+		if (nbytes < 0)
+			printf("---------- Error -----------\n");
 	}
 	pclose(fp);
+
 
 	return 0;
 }
