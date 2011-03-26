@@ -30,6 +30,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.755929152" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="gnu.c.compiler.option.include.paths.763474836" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/include"/>
+									<listOptionValue builtIn="false" value="/home/rsyoung/workspace/KissMan_Server"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1215906377" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>

@@ -8,16 +8,13 @@
 #ifndef KISSMAN_SVR_H_
 #define KISSMAN_SVR_H_
 
-/* server number */
-#define SVR_SAM_STATION			1000
-#define SVR_BATCH				2000
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
 
-/* service number of sam station */
-#define SVC_SAM_CACHE			1
-#define SVC_SAM_PROC			2
-#define SVC_SAM_MEM				3
-#define SVC_SAM_PS				4
-#define SVC_SAM_DUMP			5
 
+#define BUF_SIZE				1024
+#define CMD_LINE_LEN			1024
 
 #endif /* KISSMAN_SVR_H_ */
