@@ -14,7 +14,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
-
+#include <string.h>
 
 
 #define OFFSET_SERVER_TYPE		8
@@ -46,6 +46,7 @@ int main()
 	address.sin_port = htons(9734);
 	len = sizeof(address);
 
+
 	result = connect(sockfd, (struct sockaddr *)&address, len);
 
 	if (result == -1) {
@@ -64,17 +65,26 @@ int main()
 
 
 	int nbytes =  -1;
+	printf("sockfd == %d\n", sockfd);
 
 	while (1) {
 
-		nbytes = read(sockfd, buffer, sizeof(buffer)-1);
+		//MSG_WAITALL
+		//nbytes = read(sockfd, buffer, sizeof(buffer)-1);
+		nbytes = recv(sockfd, buffer, sizeof(buffer)-1, 0);
 
 		if (nbytes == 0)
 			break;
+		if (nbytes < 0) {
+			printf("Error -------\n");
+			exit(1);
+		}
 
-		printf("nbytes[%d]: strlen[%d]: %s\n", nbytes, strlen(buffer), buffer);
-		//bzero(buffer,1024);
+		printf("nbytes[%d]: strlen[%d]: %s", nbytes, (int)strlen(buffer), buffer);
+		bzero(buffer,1024);
 	}
+
+	printf("sockfd == %d\n", sockfd);
 
 	close(sockfd);
 	return 0;
