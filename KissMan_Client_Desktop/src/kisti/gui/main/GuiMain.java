@@ -15,6 +15,7 @@ import javax.swing.JTextArea;
 import kisti.gui.CDF.DisplayCE03;
 import kisti.gui.CDF.JobSubmitionGraph;
 import kisti.gui.CDF.MemoryMonitor;
+import kisti.gui.CDF.WorkerNodeStatus;
 
 
 
@@ -54,7 +55,7 @@ class makeGUI extends JFrame{
 	
 		
 		container = new Container();
-		container.setLayout(new GridLayout(3,1));
+		container.setLayout(new GridLayout(4,1));
 
 		
 		
@@ -63,6 +64,7 @@ class makeGUI extends JFrame{
 		pMemory.surf.start(); //monitoring start
 		DisplayCE03 displayCE03 = new DisplayCE03(); // JPanel
 		JobSubmitionGraph jobsubmistion = new JobSubmitionGraph();
+		WorkerNodeStatus wnStatus = new WorkerNodeStatus();
 		
 		
 		
@@ -72,6 +74,7 @@ class makeGUI extends JFrame{
 		container.add(displayCE03);
 		//container.add(new JLabel("--------"));
 		container.add(jobsubmistion);
+		container.add(wnStatus);
 		
 		component1 = container;		
 

@@ -116,7 +116,7 @@ public class MemoryMonitor extends JPanel {
         
             
         public void paint(Graphics g) {
-System.out.println("paint.. ");
+//System.out.println("paint.. ");
             if (big == null) {
                 return;
             }
@@ -131,8 +131,8 @@ System.out.println("paint.. ");
             float totalMemory = (float) r.totalMemory();  
             
             
-            System.out.println("freeMemory= "+(int)freeMemory);
-            System.out.println("totalMemory= "+(int)totalMemory);
+//            System.out.println("freeMemory= "+(int)freeMemory);
+//            System.out.println("totalMemory= "+(int)totalMemory);
 
             
             // .. Draw allocated and used strings ..
