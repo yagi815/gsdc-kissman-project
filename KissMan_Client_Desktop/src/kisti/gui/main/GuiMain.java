@@ -55,7 +55,7 @@ class makeGUI extends JFrame{
 	
 		
 		container = new Container();
-		container.setLayout(new GridLayout(5,1));
+		container.setLayout(new GridLayout(4,1));
 
 		
 		
@@ -104,7 +104,7 @@ class makeGUI extends JFrame{
 		textArea.setText("added");
 
 		// frame.getContentPane().add(new makeGUI(),BorderLayout.CENTER);
-		frame.setSize(1024, 1200);
+		frame.setSize(1024, 1600);
 		frame.setVisible(true);
 		System.out.println("------");
 	}
