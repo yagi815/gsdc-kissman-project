@@ -13,6 +13,7 @@ public class JobSubmitionGraph extends JPanel{
 	private int korean;
 	private int english;
 	private int math;
+	private int nJob[];
 	
 	public JobSubmitionGraph() {
 		// TODO Auto-generated constructor stub
@@ -27,29 +28,52 @@ public class JobSubmitionGraph extends JPanel{
 
 
 	public void paint(Graphics g){
+		
+		nJob = new int[100];
+		nJob[0]=11741;
+		nJob[1]=7126;
+		nJob[2]=4181;
+		nJob[3]=1894;
+		nJob[4]=8051;
+		
 		g.clearRect(0, 0, getWidth(), getHeight());
 		g.drawLine(50, 250, 350, 250);
 		
-		for (int i = 0; i < 11; i++) {
-			g.drawString(i*10+"", 25, 255-20*i);
-			g.drawLine(50, 250-20*i, 350, 250-20*i);
+		for (int i = 0; i < 16; i++) {
+			g.drawString(i*1000+"", 15, 330-20*i);
+			g.drawLine(50, 330-20*i, 370, 330-20*i);
 		}
-		g.drawLine(50, 20, 50, 250);
-		g.drawString("1월", 100, 270);//문자열 x,y 값
-		g.drawString("2월", 200, 270);
-		g.drawString("3월", 300, 270);
+		g.drawLine(50, 20, 50, 330);
+		g.drawString("week", 15, 350);//문자열 x,y 값
+		g.drawString("1", 60, 350);//문자열 x,y 값
+		g.drawString("2", 80, 350);
+		g.drawString("3", 100, 350);
+		g.drawString("4", 120, 350);
+		g.drawString("5", 140, 350);
+		g.drawString("6", 160, 350);
+		g.drawString("7", 180, 350);
+		g.drawString("8", 200, 350);
+		g.drawString("9", 220, 350);
+		g.drawString("10", 240, 350);
+		g.drawString("11", 260, 350);
+		g.drawString("12", 280, 350);
+		g.drawString("13", 300, 350);
+		g.drawString("14", 320, 350);
+		g.drawString("15", 340, 350);
+		g.drawString("16", 360, 350);
+		
 		g.setColor(Color.red);
+		int distance = 60;
 		
-		
-		if (korean > 0){ 
-			g.fillRect(110, 250-korean*2, 10, korean*2);
-		}
-		if (english >0) {
-			g.fillRect(210, 250-english*2, 10, english*2);
-		}
-		if (math >0) {
-			g.fillRect(310, 250-math*2, 10, math*2);
-		}
+		for (int i = 0; i < nJob.length; i++) {
+			if(nJob[i] > 0){
+				//g.fillRect(distance, 330-nJob[i], 10, nJob[i]*2);
+				g.fillRect(distance, (330-((330/15000)*nJob[i])), 10, (330/15000)*nJob[i] );
+				System.out.println(distance+"-"+ (330-((330/15000)*nJob[i])) +"-"
+						+"10-"+((330/15000)*nJob[i])+"-"+nJob[i]);
+				distance += 20;
+			}
+		}		
 	}
 	
 	public static void main(String[] args) {
@@ -57,7 +81,7 @@ public class JobSubmitionGraph extends JPanel{
 		JFrame f = new JFrame();
 		JobSubmitionGraph j = new JobSubmitionGraph();
 		f.add(j);
-		f.setSize(400,400);
+		f.setSize(450,400);
 		f.setVisible(true);
 	}
 }

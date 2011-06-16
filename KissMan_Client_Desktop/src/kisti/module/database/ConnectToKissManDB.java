@@ -32,7 +32,7 @@ public class ConnectToKissManDB {
 		dbName = "kissman";
 		dbUser = "kissman";
 		dbPass = "kissman";
-		url = "jdbc:mysql://"+ipAddressForDatabase+"/kissman";
+		url = "jdbc:mysql://"+ ipAddressForDatabase +"/kissman";
 		
 		try {
 			//Class.forName("com.mysql.jdbc.Driver");
@@ -40,13 +40,26 @@ public class ConnectToKissManDB {
 			conn = DriverManager.getConnection("jdbc:mysql://150.183.234.168:3306/kissman",dbUser,dbPass);
 			stmt = conn.createStatement();
 			
-			selectQuery="select * from job";			
+			
+			
+			
+			
+			selectQuery="select * from cdf_job";			
 			ResultSet rs = stmt.executeQuery(selectQuery);
 			vector = new Vector();
 			
 			int i=0;
 			while (rs.next()) {
-				resultTuple = "nWeek= "+rs.getString(1) +" nJob= "+ rs.getShort(2) +" nFailJob= "+ rs.getByte(3);
+				resultTuple = rs.getString(1) 
+				+ rs.getString(2) +" "
+				+ rs.getString(3) +" "
+				+ rs.getString(4) +" "
+				+ rs.getString(5) +" "
+				+ rs.getString(6) +" "
+				+ rs.getString(7) +" "
+				+ rs.getString(8) +" "
+				+ rs.getString(9);
+				
 				System.out.println(resultTuple);
 				vector.add(resultTuple);
 				resultTuple="";

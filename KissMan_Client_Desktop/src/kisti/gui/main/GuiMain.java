@@ -55,12 +55,12 @@ class makeGUI extends JFrame{
 	
 		
 		container = new Container();
-		container.setLayout(new GridLayout(4,1));
+		container.setLayout(new GridLayout(5,1));
 
 		
 		
 		// Ã¹¹ø Â° ÅÇ		
-		MemoryMonitor pMemory = new MemoryMonitor();
+		MemoryMonitor pMemory 	= new MemoryMonitor();
 		pMemory.surf.start(); //monitoring start
 		DisplayCE03 displayCE03 = new DisplayCE03(); // JPanel
 		JobSubmitionGraph jobsubmistion = new JobSubmitionGraph();
