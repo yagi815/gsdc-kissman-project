@@ -64,13 +64,18 @@ public class JobSubmitionGraph extends JPanel{
 		
 		g.setColor(Color.red);
 		int distance = 60;
-		
+		int x,y,width,height;
+				
 		for (int i = 0; i < nJob.length; i++) {
 			if(nJob[i] > 0){
-				//g.fillRect(distance, 330-nJob[i], 10, nJob[i]*2);
-				g.fillRect(distance, (330-((330/15000)*nJob[i])), 10, (330/15000)*nJob[i] );
-				System.out.println(distance+"-"+ (330-((330/15000)*nJob[i])) +"-"
-						+"10-"+((330/15000)*nJob[i])+"-"+nJob[i]);
+				
+				x = distance;
+				y = (nJob[i]/1000);
+				width = 10;
+				height = nJob[i]/1000;
+				//g.fillRect(distance, (330-((330/15000)*nJob[i])), 10, (330/15000)*nJob[i] );
+				g.fillRect(x, y, width, height);
+				System.out.println(x+"-"+y+"-"+width+"-"+height+"-"+nJob[i]);
 				distance += 20;
 			}
 		}		

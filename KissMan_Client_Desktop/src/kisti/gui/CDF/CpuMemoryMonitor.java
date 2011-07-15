@@ -13,26 +13,39 @@ import javax.swing.border.TitledBorder;
 
 
 /**
- * Tracks Memory allocated & used, displayed in graph form.
+ * <pre>
+ * kisti.gui.CDF
+ *   |_ MemoryMonitor.java
+ *
+ * </pre>
+ *
+ * Desc :  Tracks Memory allocated & used, displayed in graph form.
+ * @Company : KISTI
+ * @Author :grkim
+ * @Date   :2011. 7. 4. 오후 4:18:40
+ * @Version:
+ *
  */
+public class CpuMemoryMonitor extends JPanel {
 
-
-public class MemoryMonitor extends JPanel {
-
-    static JCheckBox dateStampCB = new JCheckBox("Output Date Stamp");
-    public Surface surf;
+    public static final String MonitoringSurface = null;
+	static JCheckBox dateStampCB = new JCheckBox("Output Date Stamp");
+    public MonitoringSurface  monitoring   ;
     JPanel controls;
     boolean doControls;
     JTextField tf;
     
-    public static int DIMENSION_WIDTH=500;
-    public static int DIMENSION_HEIGHT=400;
+    public static int DIMENSION_WIDTH=100;
+    public static int DIMENSION_HEIGHT=300;
     
-
-    public MemoryMonitor() {
+	/**
+	 * 
+	 * Desc : Constructor of MemoryMonitor.java class
+	 */
+    public CpuMemoryMonitor() {
         this.setLayout(new BorderLayout());
-        this.setBorder(new TitledBorder(new EtchedBorder(), "Memory Monitor"));
-        this.add(surf = new Surface());
+        //this.setBorder(new TitledBorder(new EtchedBorder(), "Memory Monitor"));
+        this.add(monitoring = new MonitoringSurface());
         controls = new JPanel();
         controls.setPreferredSize(new Dimension(DIMENSION_WIDTH,DIMENSION_HEIGHT));
         Font font = new Font("serif", Font.PLAIN, 10);
@@ -72,7 +85,7 @@ public class MemoryMonitor extends JPanel {
     }
 
 
-    public class Surface extends JPanel implements Runnable {
+    public class MonitoringSurface extends JPanel implements Runnable {
 
         public Thread thread;
         public long sleepAmount = 500;
@@ -95,7 +108,11 @@ public class MemoryMonitor extends JPanel {
         private String usedStr;
       
 
-        public Surface() {
+        /**
+         * 
+         * Desc : Constructor of MemoryMonitor.java class
+         */
+        public MonitoringSurface() {
             setBackground(Color.black);
 //            addMouseListener(new MouseAdapter() {
 //                public void mouseClicked(MouseEvent e) {
@@ -103,20 +120,11 @@ public class MemoryMonitor extends JPanel {
 //                }
 //            });
         }
-        public Dimension getMinimumSize() {
-            return getPreferredSize();
-        }
-        public Dimension getMaximumSize() {
-            return getPreferredSize();
-        }
-        public Dimension getPreferredSize() {
-            return new Dimension(DIMENSION_WIDTH,DIMENSION_HEIGHT);
-        }
-
-        
-            
+              
+        /**
+         * 
+         */
         public void paint(Graphics g) {
-//System.out.println("paint.. ");
             if (big == null) {
                 return;
             }
@@ -130,9 +138,8 @@ public class MemoryMonitor extends JPanel {
             float freeMemory = (float) r.freeMemory();
             float totalMemory = (float) r.totalMemory();  
             
-            
-//            System.out.println("freeMemory= "+(int)freeMemory);
-//            System.out.println("totalMemory= "+(int)totalMemory);
+            System.out.println("paint");
+            System.out.println(freeMemory+"-"+totalMemory);
 
             
             // .. Draw allocated and used strings ..
@@ -154,89 +161,30 @@ public class MemoryMonitor extends JPanel {
             // .. Memory Free ..
             big.setColor(mfColor);
             int MemUsage = (int) ((freeMemory / totalMemory) * 10);
-            int i = 0;
+            
+            //CPU 그래프
+            int i = 0, ii = 0;
             for ( ; i < MemUsage ; i++) { 
                 mfRect.setRect(5,(float) ssH+i*blockHeight,
+                                blockWidth,(float) blockHeight-1);
+                big.fill(mfRect);
+            }
+            // 메모리 그래프
+            for (; ii < MemUsage ; ii++) { 
+                mfRect.setRect(30,(float) ssH+i*blockHeight,
                                 blockWidth,(float) blockHeight-1);
                 big.fill(mfRect);
             }
 
             // .. Memory Used ..
             big.setColor(Color.green);
-            for ( ; i < 10; i++)  {
+            for (; i < 10; i++)  {
                 muRect.setRect(5,(float) ssH+i*blockHeight,
                                 blockWidth,(float) blockHeight-1);
                 big.fill(muRect);
             }
 
-            // .. Draw History Graph ..
-            big.setColor(graphColor);
-            int graphX = 30;
-            int graphY = (int) ssH;
-            int graphW = w - graphX - 5;
-            int graphH = (int) remainingHeight;
-            graphOutlineRect.setRect(graphX, graphY, graphW, graphH);
-         //   big.draw(graphOutlineRect);
 
-            int graphRow = graphH/10;
-
-            // .. Draw row ..
-            for (int j = graphY; j <= graphH+graphY; j += graphRow) {
-                graphLine.setLine(graphX,j,graphX+graphW,j);
-                big.draw(graphLine);
-            }
-        
-            // .. Draw animated column movement ..
-            int graphColumn = graphW/15;
-
-            if (columnInc == 0) {
-                columnInc = graphColumn;
-            }
-
-            for (int j = graphX+columnInc; j < graphW+graphX; j+=graphColumn) {
-                graphLine.setLine(j,graphY,j,graphY+graphH);
-                big.draw(graphLine);
-            }
-
-            --columnInc;
-
-            if (pts == null) {
-                pts = new int[graphW];
-                ptNum = 0;
-            } else if (pts.length != graphW) {
-                int tmp[] = null;
-                if (ptNum < graphW) {     
-                    tmp = new int[ptNum];
-                    System.arraycopy(pts, 0, tmp, 0, tmp.length);
-                } else {        
-                    tmp = new int[graphW];
-                    System.arraycopy(pts, pts.length-tmp.length, tmp, 0, tmp.length);
-                    ptNum = tmp.length - 2;
-                }
-                pts = new int[graphW];
-                System.arraycopy(tmp, 0, pts, 0, tmp.length);
-            } else {
-                big.setColor(Color.yellow);
-                pts[ptNum] = (int)(graphY+graphH*(freeMemory/totalMemory));
-                for (int j=graphX+graphW-ptNum, k=0;k < ptNum; k++, j++) {
-                    if (k != 0) {
-                        if (pts[k] != pts[k-1]) {
-                            big.drawLine(j-1, pts[k-1], j, pts[k]);
-                        } else {
-                            big.fillRect(j, pts[k], 1, 1);
-                        }
-                    }
-                }
-                if (ptNum+2 == pts.length) {
-                    // throw out oldest point
-                    for (int j = 1;j < ptNum; j++) {
-                        pts[j-1] = pts[j];
-                    }
-                    --ptNum;
-                } else {
-                    ptNum++;
-                }
-            }
             g.drawImage(bimg, 0, 0, this);
         }
 
@@ -244,7 +192,7 @@ public class MemoryMonitor extends JPanel {
         public void start() {
             thread = new Thread(this);
             thread.setPriority(Thread.MIN_PRIORITY);
-            thread.setName("MemoryMonitor");
+            thread.setName("CpuMemoryMonitor");
             thread.start();
         }
 
@@ -254,7 +202,7 @@ public class MemoryMonitor extends JPanel {
             notify();
         }
         
-        
+        ;
 
 
         public void run() {
@@ -268,7 +216,7 @@ public class MemoryMonitor extends JPanel {
             }
     
             while (thread == me && isShowing()) {
-            	//System.out.println("in while ---- ");
+            	System.out.println("in while ---- ");
                 Dimension d = getSize();
                 if (d.width != w || d.height != h) {
                     w = d.width;
@@ -280,35 +228,44 @@ public class MemoryMonitor extends JPanel {
                     ascent = (int) fm.getAscent();
                     descent = (int) fm.getDescent();
                 }
+                validate();
                 repaint();
                 try {
                     thread.sleep(sleepAmount);
                 } catch (InterruptedException e) { break; }
-                if (MemoryMonitor.dateStampCB.isSelected()) {
-                     System.out.println(new Date().toString() + " " + usedStr);
-                }
+//                if (CpuMemoryMonitor.dateStampCB.isSelected()) {
+//                     System.out.println(new Date().toString() + " " + usedStr);
+//                }
             }
             thread = null;
         }
     }
 
 
+    /**
+     * 
+     * Desc :
+     * @Method Name : main
+     * @param s
+     *
+     */
     public static void main(String s[]) {
-        final MemoryMonitor demo = new MemoryMonitor();
+        final CpuMemoryMonitor demo = new CpuMemoryMonitor();
 //        WindowListener l = new WindowAdapter() {
 //            public void windowClosing(WindowEvent e) {	System.exit(0);	}
-//            public void windowDeiconified(WindowEvent e) { demo.surf.start(); }
-//            public void windowIconified(WindowEvent e) { demo.surf.stop(); }
+//            public void windowDeiconified(WindowEvent e) { demo.monitoringMem.start(); }
+//            public void windowIconified(WindowEvent e) { demo.monitoringMem.stop(); }
 //        };
-//        JFrame f = new JFrame("Java2D Demo - MemoryMonitor");
+//        
+        JFrame f = new JFrame("Java2D Demo - MemoryMonitor");
 //        f.addWindowListener(l);
-//        f.getContentPane().add("Center", demo);
-//        f.pack();
+        f.getContentPane().add("Center", demo);
+        f.pack();
 //       
 //        
-//        f.setSize(new Dimension(550, 400));
-//		f.setVisible(true);
+        f.setSize(new Dimension(DIMENSION_WIDTH, DIMENSION_HEIGHT));
+		f.setVisible(true);
 //		
-//        demo.surf.start();
+//        demo.monitoringMem.start();
     }
 }

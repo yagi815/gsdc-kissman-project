@@ -1,3 +1,4 @@
+
 package test_code;
 
 import java.awt.BorderLayout;
@@ -22,6 +23,21 @@ import kisti.gui.CDF.DisplayCE03;
 
 
 
+/**
+ * @author grkim
+ *
+ */
+/**
+ * test_code
+ * CDF_Main_Panel.java
+ *
+ *
+ *
+ * @Author :grkim
+ * @Date   :2011. 6. 17.
+ * @Version:
+ *
+ */
 public class CDF_Main_Panel extends JFrame{
 
 	//layout °ü¸®ÀÚ
@@ -100,6 +116,20 @@ public class CDF_Main_Panel extends JFrame{
 		fPBS = new DisplayCE03();
 		pMem = new MemoryMonitor_org();
 
+	}
+	
+	
+	
+	/**
+	 * 
+	 * TODO
+	 * @param a
+	 * @param b
+	 * @return
+	 *
+	 */
+	public int multiply( int a, int b ){
+		return a* b;
 	}
 	
 	

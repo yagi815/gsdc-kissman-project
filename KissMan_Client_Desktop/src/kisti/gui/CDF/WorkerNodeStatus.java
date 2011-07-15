@@ -9,13 +9,33 @@ import javax.swing.JTable;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+
+
+
+/**
+ * <pre>
+ * kisti.gui.CDF
+ *   |_ WorkerNodeStatus.java
+ *
+ * </pre>
+ *
+ * Desc : Display status of worknodes with table
+ * @Company : KISTI
+ * @Author :grkim
+ * @Date   :2011. 7. 12. 오후 1:56:58
+ * @Version:
+ *
+ */
 public class WorkerNodeStatus extends JPanel{
 
-	//private String header[];
-	//private String cells[][];
-	JTable table;
-	Container container;
+	private JTable table;
+	private Container container;
+
 	
+	/**
+	 * 
+	 * Desc : Constructor of WorkerNodeStatus.java class
+	 */
 	public WorkerNodeStatus() {
 		// TODO Auto-generated constructor stub
 		String header[] = {"Name","Power","running","Server","Etc"};
@@ -32,13 +52,11 @@ public class WorkerNodeStatus extends JPanel{
 		
 		
 		table = new JTable(cells,header);
-		//table.enableInputMethods(enable)
-		//table.setEnabled(false);
+
 		container = new Container();
 		this.setBorder(new TitledBorder(new EtchedBorder(),"WN Status"));
 		this.add(new JScrollPane(table));//JScrollPanel을 붙이지 않으면 헤더가 보이지 않는다!!!!!
-//		this.setSize(400,400);
-//		this.setVisible(true);
+
 	}
 	/**
 	 * @param args
