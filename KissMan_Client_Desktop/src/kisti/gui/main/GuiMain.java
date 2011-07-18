@@ -1,20 +1,21 @@
 package kisti.gui.main;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.MenuBar;
+import java.awt.Toolkit;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import kisti.gui.CDF.DisplayCE03;
@@ -33,7 +34,7 @@ import kisti.gui.CDF.JobSubmitionGraph;
  * Desc : main class of KissMan for GUI
  * @Company : KISTI
  * @Author :grkim
- * @Date   :2011. 6. 29. 오후 11:30:40
+ * @Date   :2011. 6. 29. AM 11:30:40
  * @Version: 1.0
  *
  */
@@ -49,17 +50,8 @@ public class GuiMain extends JFrame{
 	private JobSubmitionGraph jobSubmitionGraph = null;
 	
 	private JTree treeRoot = null;
-//	private DefaultMutableTreeNode treeTop = null;
-//	private DefaultMutableTreeNode treeCDF = null;
-//	private DefaultMutableTreeNode treeBelle = null;
-//	private DefaultMutableTreeNode treeAlice = null;
-//	private JScrollPane jscrollTree = null;
-	
-	
-	
-	
 
-			
+		
 	
 	/**
 	 * 
@@ -73,9 +65,7 @@ public class GuiMain extends JFrame{
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(null);
 						
-		/** 
-		 * 3개의 메일 패널 생성하고 배치
-		 * 1. 메뉴
+		/**
 		 * 2. treePanel		 
 		 */
 		panelTree = makeTreePanel();
@@ -250,8 +240,7 @@ public class GuiMain extends JFrame{
 		tableJob.setBounds(12,458, 569, 206);
 		tableJob.setBackground(new Color(255, 255, 204));
 		panel.add(tableJob);
-		
-		
+				
 		
 		/**
 		 * display number of total jobs 
@@ -265,9 +254,9 @@ public class GuiMain extends JFrame{
 	}
 	/**
 	 * 
-	 * Desc : 
+	 * Desc : make cdf 02 panel 
 	 * @Method Name : MakeCDF02Panel
-	 * @return
+	 * @return panel
 	 *
 	 */
 	private JPanel MakeCDF02Panel(){
@@ -277,9 +266,9 @@ public class GuiMain extends JFrame{
 	}
 	/**
 	 * 
-	 * Desc :
+	 * Desc : make alice01 panel
 	 * @Method Name : MakeAlice01Panel
-	 * @return
+	 * @return panel
 	 *
 	 */
 	private JPanel MakeAlice01Panel(){
@@ -288,9 +277,26 @@ public class GuiMain extends JFrame{
 		return panel;
 	}
 	
+	/**
+	 * 
+	 * Desc : make Kisti CI
+	 * @Method Name : makeKistiCI
+	 * @return panel
+	 *
+	 */
 	private JPanel makeKistiCI(){
-		JPanel panel = new JPanel();			
-		panel.setBackground(Color.WHITE);				
+		JPanel panel = new JPanel();
+//		Image imgKISTI = Toolkit.getDefaultToolkit().getImage("./Resource/KISTI.gif");
+//		JPanel panel = new JPanel()
+//		{
+//			public void paintComponent(Graphics g){
+//				g.drawImage(imgKISTI, 10+5, 612+5, 221-19, 76, null );
+//			}
+//		};
+		//panel.add(new JLabel("hello"));
+		//E:\Java_workspace\KissMan_Client_Desktop\src\kisti\gui\main\Images
+		panel.add(new JLabel(new ImageIcon("Images/KISTI.gif")));
+		panel.setBackground(Color.WHITE);
 		return panel;
 	}
 	

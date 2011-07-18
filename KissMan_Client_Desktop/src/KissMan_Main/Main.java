@@ -13,7 +13,7 @@ import kisti.gui.main.*;
  * Desc :
  * @Company : KISTI
  * @Author :grkim
- * @Date   :2011. 6. 29. ¿ÀÈÄ 11:37:14
+ * @Date   :2011. 6. 29. AM 11:37:14
  * @Version:
  *
  */

@@ -20,7 +20,7 @@ import java.net.UnknownHostException;
  * Desc :
  * @Company : KISTI
  * @Author :grkim
- * @Date   :2011. 7. 11. 오후 10:34:06
+ * @Date   :2011. 7. 11. AM 10:34:06
  * @Version:
  *
  */
@@ -47,7 +47,7 @@ public class connectToServer {
         try {
         	socket = new Socket("150.183.234.168",8197);
         	        
-        	// server -> client 출력용 스트림
+        	// server -> client
         	bos = new BufferedOutputStream(socket.getOutputStream());
         	osw = new OutputStreamWriter(bos,"UTF-8");
         	//osw.write(257);
@@ -61,7 +61,7 @@ public class connectToServer {
         	
         	
         	
-        	//Client--> server 입력용 스트림        	
+        	//Client--> server       	
         	bis = new BufferedInputStream(socket.getInputStream());
         	isr = new InputStreamReader(bis,"UTF-8");
         	int c;

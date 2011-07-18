@@ -8,6 +8,20 @@ import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+/**
+ * <pre>
+ * kisti.gui.CDF
+ *   |_ JobSubmitionGraph.java
+ *
+ * </pre>
+ *
+ * Desc :
+ * @Company : KISTI
+ * @Author :grkim
+ * @Date   :2011. 7. 18. AM 10:00:55
+ * @Version:
+ *
+ */
 public class JobSubmitionGraph extends JPanel{
 
 	private int korean;
@@ -44,8 +58,8 @@ public class JobSubmitionGraph extends JPanel{
 			g.drawLine(50, 330-20*i, 370, 330-20*i);
 		}
 		g.drawLine(50, 20, 50, 330);
-		g.drawString("week", 15, 350);//문자열 x,y 값
-		g.drawString("1", 60, 350);//문자열 x,y 값
+		g.drawString("week", 15, 350);
+		g.drawString("1", 60, 350);
 		g.drawString("2", 80, 350);
 		g.drawString("3", 100, 350);
 		g.drawString("4", 120, 350);

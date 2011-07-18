@@ -22,7 +22,7 @@ import javax.swing.border.TitledBorder;
  * Desc :  Tracks Memory allocated & used, displayed in graph form.
  * @Company : KISTI
  * @Author :grkim
- * @Date   :2011. 7. 4. ¿ÀÈÄ 4:18:40
+ * @Date   :2011. 7. 4. PM 4:18:40
  * @Version:
  *
  */
@@ -162,14 +162,14 @@ public class CpuMemoryMonitor extends JPanel {
             big.setColor(mfColor);
             int MemUsage = (int) ((freeMemory / totalMemory) * 10);
             
-            //CPU ±×·¡ÇÁ
+            //CPU ï¿½×·ï¿½ï¿½ï¿½
             int i = 0, ii = 0;
             for ( ; i < MemUsage ; i++) { 
                 mfRect.setRect(5,(float) ssH+i*blockHeight,
                                 blockWidth,(float) blockHeight-1);
                 big.fill(mfRect);
             }
-            // ¸Þ¸ð¸® ±×·¡ÇÁ
+            // ï¿½Þ¸ï¿½ ï¿½×·ï¿½ï¿½ï¿½
             for (; ii < MemUsage ; ii++) { 
                 mfRect.setRect(30,(float) ssH+i*blockHeight,
                                 blockWidth,(float) blockHeight-1);

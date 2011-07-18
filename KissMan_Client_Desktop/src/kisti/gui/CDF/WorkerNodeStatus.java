@@ -22,7 +22,7 @@ import javax.swing.border.TitledBorder;
  * Desc : Display status of worknodes with table
  * @Company : KISTI
  * @Author :grkim
- * @Date   :2011. 7. 12. ¿ÀÈÄ 1:56:58
+ * @Date   :2011. 7. 12. ì˜¤í›„ 1:56:58
  * @Version:
  *
  */
@@ -55,7 +55,7 @@ public class WorkerNodeStatus extends JPanel{
 
 		container = new Container();
 		this.setBorder(new TitledBorder(new EtchedBorder(),"WN Status"));
-		this.add(new JScrollPane(table));//JScrollPanelÀ» ºÙÀÌÁö ¾ÊÀ¸¸é Çì´õ°¡ º¸ÀÌÁö ¾Ê´Â´Ù!!!!!
+		this.add(new JScrollPane(table));//JScrollPanelì„ ì‚¬ìš©í•˜ì§€ ì•Šìœ¼ë©´ í—¤ë”ê°€ ë³´ì´ì§€ ì•ŠëŠ”ë‹¤!!
 
 	}
 	/**

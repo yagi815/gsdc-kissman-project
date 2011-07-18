@@ -1,7 +1,5 @@
 package kisti.gui.CDF;
 
-// JeditorPane 을 이용하여 웹 서버 내용을
-// 긁어다가 표시 
 
 import java.awt.Container;
 
@@ -25,7 +23,7 @@ import javax.swing.border.TitledBorder;
  * Desc :
  * @Company : KISTI
  * @Author :grkim
- * @Date   :2011. 6. 29. 오후 11:30:49
+ * @Date   :2011. 6. 29. AM 11:30:49
  * @Version:
  *
  */
