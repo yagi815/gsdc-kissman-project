@@ -26,11 +26,22 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 
+
+
 /**
- * Tracks Memory allocated & used, displayed in graph form.
+ * <pre>
+ * kisti.gui.CDF
+ *   |_ CpuMonitor.java
+ *
+ * </pre>
+ *
+ * Desc :
+ * @Company : KISTI
+ * @Author :grkim
+ * @Date   :2011. 7. 18. AM 10:37:38
+ * @Version:
+ *
  */
-
-
 public class CpuMonitor extends JPanel {
 
     static JCheckBox dateStampCB = new JCheckBox("Output Date Stamp");
