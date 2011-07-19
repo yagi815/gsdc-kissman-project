@@ -10,6 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
@@ -89,7 +90,7 @@ public class GuiMain extends JFrame{
 		this.add(panelKistiCI);
 
 		/**
-		 * 5. BottmPanel
+		 * 5. BottomPanel
 		 */
 		panelBottom = makeBottomPanel();
 		panelBottom.setBounds(0, 700, 1350, 30);
@@ -188,21 +189,13 @@ public class GuiMain extends JFrame{
 				{"WN2003","ON","Running","1U Server",".."},
 				{"WN2004","OFF","Null","1U Server",".."}
 		};		
-		DefaultTableModel tablemodelWN = new  DefaultTableModel(wokerNodeTablecells, wokerNodeTableheader);
-		DefaultTableColumnModel tablecolumnmodelWN = new DefaultTableColumnModel();
-		JTable tableWN = new JTable(tablemodelWN, tablecolumnmodelWN);
 		
 		
-//		TableColumn tc, tc1, tc2, tc3;
-//		tc = new TableColumn();
-//		tc.setHeaderValue("naem");
-//		table.addColumn(tc);
-		
-				
-		tableWN.setBounds(484, 60, 599, 353);
-		tableWN.setBackground(new Color(255, 255, 204));		
-		//panel.add(new JScrollPane(table), BorderLayout.CENTER);
-		panel.add(tableWN);
+		JTable tableWN  = new JTable(wokerNodeTablecells, wokerNodeTableheader);
+		tableWN.setBackground(new Color(255, 255, 204));	
+		JScrollPane jspWN = new JScrollPane(tableWN);
+		jspWN.setBounds(484, 60, 599, 353);
+		panel.add(jspWN);
 		
 		/**
 		 * display Seperator panel
@@ -234,12 +227,11 @@ public class GuiMain extends JFrame{
 				{"2011-05-23 ~ 2011-05-29","1","10408","100%","33987"},
 				{"2011-05-30 ~ 2011-06-05","1","10408","100%","33256"},				
 		};
-		DefaultTableModel tablemodelJob = new  DefaultTableModel(jobTablecells, jobTableheader);
-		DefaultTableColumnModel tablecolumnmodelJob = new DefaultTableColumnModel();
-		JTable tableJob = new JTable(tablemodelJob, tablecolumnmodelJob);
-		tableJob.setBounds(12,458, 569, 206);
-		tableJob.setBackground(new Color(255, 255, 204));
-		panel.add(tableJob);
+		JTable tableJob  = new JTable(wokerNodeTablecells, wokerNodeTableheader);
+		tableJob.setBackground(new Color(255, 255, 204));	
+		JScrollPane jspJob = new JScrollPane(tableJob);
+		jspJob.setBounds(12,458, 569, 206);
+		panel.add(jspJob);
 				
 		
 		/**
@@ -286,16 +278,8 @@ public class GuiMain extends JFrame{
 	 */
 	private JPanel makeKistiCI(){
 		JPanel panel = new JPanel();
-//		Image imgKISTI = Toolkit.getDefaultToolkit().getImage("./Resource/KISTI.gif");
-//		JPanel panel = new JPanel()
-//		{
-//			public void paintComponent(Graphics g){
-//				g.drawImage(imgKISTI, 10+5, 612+5, 221-19, 76, null );
-//			}
-//		};
-		//panel.add(new JLabel("hello"));
-		//E:\Java_workspace\KissMan_Client_Desktop\src\kisti\gui\main\Images
-		panel.add(new JLabel(new ImageIcon("Images/KISTI.gif")));
+		//E:/Java_workspace/KissMan_Client_Desktop/src/kisti/gui/main/Images
+		panel.add(new JLabel(new ImageIcon("E:/Java_workspace/KissMan_Client_Desktop/src/kisti/gui/main/Images/KISTI.gif")));
 		panel.setBackground(Color.WHITE);
 		return panel;
 	}
@@ -315,7 +299,6 @@ public class GuiMain extends JFrame{
 	}
 	
 	
-
 	/**
 	 * 
 	 * Desc : main 

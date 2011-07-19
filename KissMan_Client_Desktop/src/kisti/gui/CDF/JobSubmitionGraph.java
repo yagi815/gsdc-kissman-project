@@ -5,8 +5,8 @@ import java.awt.Graphics;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
+
+import kisti.module.database.KissManDatabase;
 
 /**
  * <pre>
@@ -22,85 +22,93 @@ import javax.swing.border.TitledBorder;
  * @Version:
  *
  */
+
+
 public class JobSubmitionGraph extends JPanel{
 
-	private int korean;
-	private int english;
-	private int math;
 	private int nJob[];
+	private static int WIDTH = 460;
+	private static int HEIGHT = 206;
+	private static int GRAPH_HEIGHT = 190;
+
 	
+	/**
+	 * 
+	 */
 	public JobSubmitionGraph() {
 		// TODO Auto-generated constructor stub
-		korean = 55;
-		english = 66;
-		math = 10;
 		
-		this.setBackground(new Color(147,77,134)); //for test
-		this.setBorder(new TitledBorder(new EtchedBorder(),"JobTotal"));
+		KissManDatabase db = new KissManDatabase();
+		Object obj = db.requestDataFromDataBase("jobsubmition");
+		nJob = (int[]) obj;
+				
+		this.setSize(WIDTH, HEIGHT	);
+		this.setBackground(new Color(147,77,134)); //for test		
 		this.repaint();
 	}
 
-
+	/**
+	 * 
+	 */
 	public void paint(Graphics g){
+
+		g.clearRect(0, 0, getWidth(), getHeight());		
+		//g.drawLine(WIDTH+50, HEIGHT+250, 350, 250);
 		
-		nJob = new int[100];
-		nJob[0]=11741;
-		nJob[1]=7126;
-		nJob[2]=4181;
-		nJob[3]=1894;
-		nJob[4]=8051;
-		
-		g.clearRect(0, 0, getWidth(), getHeight());
-		g.drawLine(50, 250, 350, 250);
-		
-		for (int i = 0; i < 16; i++) {
-			g.drawString(i*1000+"", 15, 330-20*i);
-			g.drawLine(50, 330-20*i, 370, 330-20*i);
+		//세로 가이드 라인
+		g.drawLine(50, 0, 50, GRAPH_HEIGHT);
+		//가로 가이드 라인 & 가로 string	   
+		int stringY = GRAPH_HEIGHT + 3;
+		for (int i = 0; i <= 12; i++) {
+			g.drawString(i*2000+"", 15, stringY-15*i);
+			g.drawLine(50, GRAPH_HEIGHT-15*i, 400, GRAPH_HEIGHT-15*i);
 		}
-		g.drawLine(50, 20, 50, 330);
-		g.drawString("week", 15, 350);
-		g.drawString("1", 60, 350);
-		g.drawString("2", 80, 350);
-		g.drawString("3", 100, 350);
-		g.drawString("4", 120, 350);
-		g.drawString("5", 140, 350);
-		g.drawString("6", 160, 350);
-		g.drawString("7", 180, 350);
-		g.drawString("8", 200, 350);
-		g.drawString("9", 220, 350);
-		g.drawString("10", 240, 350);
-		g.drawString("11", 260, 350);
-		g.drawString("12", 280, 350);
-		g.drawString("13", 300, 350);
-		g.drawString("14", 320, 350);
-		g.drawString("15", 340, 350);
-		g.drawString("16", 360, 350);
 		
-		g.setColor(Color.red);
-		int distance = 60;
-		int x,y,width,height;
-				
+		//가로 string
+		int monthY = GRAPH_HEIGHT + 15;
+		int monthX = 15;
+		g.drawString("month", 15,  monthY);
+		monthX += 25;
+		
+		for (int i = 1; i <= nJob.length; i++) {
+			monthX += 25;
+			g.drawString(i+"", monthX,  monthY);
+			//System.out.print(monthX +"-");
+		}
+		
+		
+		// 막대 그래프 
+		g.setColor(Color.red);		
+		int graphX = 35;
+		int graphY = 15;
+		int graphWidth = 10;
+		int graphHeight = 0;		
+
 		for (int i = 0; i < nJob.length; i++) {
 			if(nJob[i] > 0){
-				
-				x = distance;
-				y = (nJob[i]/1000);
-				width = 10;
-				height = nJob[i]/1000;
-				//g.fillRect(distance, (330-((330/15000)*nJob[i])), 10, (330/15000)*nJob[i] );
-				g.fillRect(x, y, width, height);
-				System.out.println(x+"-"+y+"-"+width+"-"+height+"-"+nJob[i]);
-				distance += 20;
+				graphX += 25;
+				System.out.println(nJob[i]+"-");
+				graphHeight = nJob[i]/2000;
+				g.fillRect(graphX, GRAPH_HEIGHT, graphWidth, -(graphHeight*15) ); // 그래프				
 			}
 		}		
 	}
 	
+	/**
+	 * 
+	 * Desc :
+	 * @Method Name : main
+	 * @param args
+	 *
+	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		JFrame f = new JFrame();
-		JobSubmitionGraph j = new JobSubmitionGraph();
-		f.add(j);
-		f.setSize(450,400);
+		JobSubmitionGraph panel = new JobSubmitionGraph();
+		panel.setBackground(Color.YELLOW);
+		f.setLayout(null);
+		f.add(panel);
+		f.setSize(WIDTH, HEIGHT+50);
 		f.setVisible(true);
 	}
 }
