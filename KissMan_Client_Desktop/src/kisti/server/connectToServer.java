@@ -75,9 +75,7 @@ public class connectToServer {
 //        	while ( (s = bis.read()) != -1) {
 //				System.out.print((char)s);				
 //			}
-        	
-        	
-        	
+       	
 //        	String data = bis.readLine();
 //        	System.out.println(data);
         	

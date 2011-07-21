@@ -1,26 +1,22 @@
 package kisti.gui.main;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.MenuBar;
-import java.awt.Toolkit;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import kisti.gui.CDF.CDFJobTable;
 import kisti.gui.CDF.DisplayCE03;
 import kisti.gui.CDF.JobSubmitionGraph;
+import kisti.gui.CDF.WorkerNodeStatus;
 
 
 
@@ -52,7 +48,7 @@ public class GuiMain extends JFrame{
 	
 	private JTree treeRoot = null;
 
-		
+	
 	
 	/**
 	 * 
@@ -168,7 +164,7 @@ public class GuiMain extends JFrame{
 		panel.add(textareaDisplayQueue);
 		
 		/** 
-		 * display status of workernodes
+		 * display label for status of workernodes
 		 */
 		JLabel labelCDFWokerNodes = new JLabel("Kisti Workernode's Status for CDF");
 		labelCDFWokerNodes.setBounds(484, 36 ,205 ,18);
@@ -178,61 +174,31 @@ public class GuiMain extends JFrame{
 		/**
 		 * display wokernode table
 		 */
-		String wokerNodeTableheader[] = {"Name","Power","running","Server","Etc"};
-		String wokerNodeTablecells[][] ={
-				{"WN1017","ON","Running","Blade",".."},				
-				{"WN1018","ON","Running","Blade",".."},
-				{"WN1019","ON","Null","Blade",".."},
-				{"WN1020","ON","Running","Blade",".."},
-				{"WN2001","OFF","Null","1U Server",".."},
-				{"WN2002","ON","Running","1U Server",".."},
-				{"WN2003","ON","Running","1U Server",".."},
-				{"WN2004","OFF","Null","1U Server",".."}
-		};		
-		
-		
-		JTable tableWN  = new JTable(wokerNodeTablecells, wokerNodeTableheader);
-		tableWN.setBackground(new Color(255, 255, 204));	
-		JScrollPane jspWN = new JScrollPane(tableWN);
-		jspWN.setBounds(484, 60, 599, 353);
-		panel.add(jspWN);
+		JPanel wnStatus = new WorkerNodeStatus();
+		wnStatus.setBounds(484, 60, 599, 353);
+		panel.add(wnStatus);
 		
 		/**
 		 * display Seperator panel
 		 */
 		JPanel panelSeperator = new JPanel();
 		panelSeperator.setBackground(new Color(153, 153, 153));
-		panelSeperator.setBounds(0, 436, 1095, 10);
+		panelSeperator.setBounds(0, 426, 1095, 10);
 		panel.add(panelSeperator);
-		
+				
+		/**
+		 * display label for Jobtotal 
+		 */
+		JLabel labelJobTotal = new JLabel("CDF job status");
+		labelJobTotal.setBounds(12, 443 ,205 ,15);
+		panel.add(labelJobTotal);
 		
 		/**
 		 * display Jobtable
 		 */
-		String jobTableheader[] = {"Period","Users","Jobs(Total)","Success","Wall Time(Hours)"};
-		String jobTablecells[][] ={
-				{"2011-01-03 ~ 2011-01-09","4","11741","100%","31908"},				
-				{"2011-01-10 ~ 2011-01-16","3","7126","100%","10255"},
-				{"2011-02-07 ~ 2011-02-13","2","4181","100%","30361"},
-				{"2011-02-14 ~ 2011-02-20","2","1894","100%","78254"},
-				{"2011-02-21 ~ 2011-02-27","2","8051","100%","20156"},
-				{"2011-02-28 ~ 2011-03-06","2","13154","100%","34588"},
-				{"2011-04-04 ~ 2011-04-10","2","2744","100%","15488"},
-				{"2011-04-11 ~ 2011-04-17","2","2365","100%","30447"},
-				{"2011-04-18 ~ 2011-04-24","2","6702","100%","34888"},
-				{"2011-04-25 ~ 2011-05-01","4","10408","100%","36555"},
-				{"2011-05-02 ~ 2011-05-08","3","10408","100%","32333"},
-				{"2011-05-09 ~ 2011-05-15","2","10408","100%","33659"},
-				{"2011-05-16 ~ 2011-05-22","3","10408","100%","33789"},
-				{"2011-05-23 ~ 2011-05-29","1","10408","100%","33987"},
-				{"2011-05-30 ~ 2011-06-05","1","10408","100%","33256"},				
-		};
-		JTable tableJob  = new JTable(wokerNodeTablecells, wokerNodeTableheader);
-		tableJob.setBackground(new Color(255, 255, 204));	
-		JScrollPane jspJob = new JScrollPane(tableJob);
-		jspJob.setBounds(12,458, 569, 206);
-		panel.add(jspJob);
-				
+		JPanel CDFJobTable = new CDFJobTable();
+		CDFJobTable.setBounds(12, 468, 569, 206);
+		panel.add(CDFJobTable);
 		
 		/**
 		 * display number of total jobs 

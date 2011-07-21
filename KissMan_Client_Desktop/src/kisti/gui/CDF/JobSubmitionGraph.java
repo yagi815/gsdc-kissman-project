@@ -34,7 +34,10 @@ public class JobSubmitionGraph extends JPanel{
 	
 	/**
 	 * 
-	 */
+	 * Desc :
+	 * @Method Name : JobSubmitionGraph
+	 *
+	 */	
 	public JobSubmitionGraph() {
 		// TODO Auto-generated constructor stub
 		
@@ -48,7 +51,7 @@ public class JobSubmitionGraph extends JPanel{
 	}
 
 	/**
-	 * 
+	 * paint
 	 */
 	public void paint(Graphics g){
 
@@ -75,8 +78,7 @@ public class JobSubmitionGraph extends JPanel{
 			g.drawString(i+"", monthX,  monthY);
 			//System.out.print(monthX +"-");
 		}
-		
-		
+
 		// 막대 그래프 
 		g.setColor(Color.red);		
 		int graphX = 35;
@@ -93,6 +95,7 @@ public class JobSubmitionGraph extends JPanel{
 			}
 		}		
 	}
+	
 	
 	/**
 	 * 
