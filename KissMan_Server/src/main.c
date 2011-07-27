@@ -17,21 +17,22 @@
 
 static unsigned int get_server_num(const unsigned int svr_code);
 static unsigned int get_service_type(const unsigned int svr_code);
+static void make_new_connection(const int server_sockfd, fd_set* masterfds, int* fdmax);
+static void *get_in_addr(struct sockaddr *sa);
+static void set_server_addr(struct sockaddr_in* svr_addr);
+static int get_request(const int fd, struct  service_struct* svc_struct);
+static void process_request(const int fd);
+static int get_service_code(const int fd, unsigned int* svc_code);
+static int get_command_line(const int fd, struct service_struct* svc_struct);
 
-static int get_service_code(const int fd, fd_set* readfds, unsigned int* service_code);
+static int check_server_num(int svr_num);
+static int check_service_type(struct service_struct *svc_struct);
 
-static int  identify_service(const unsigned int svr_code,
-							 struct service_struct* svc_struct);
+static void dump_svc(struct service_struct* svc_struct);
 
 extern int execute_service(const int fd, const struct service_struct svc_struct);
 
 static int server_num;
-
-static void make_new_connection(const int server_sockfd, fd_set* masterfds, int* fdmax);
-static void process_request(const int fd, fd_set* masterfds);
-static void *get_in_addr(struct sockaddr *sa);
-static void set_server_addr(struct sockaddr_in* svr_addr);
-
 
 int main(int argc, char* argv[])
 {
@@ -120,7 +121,7 @@ int main(int argc, char* argv[])
 			if (fd == server_sockfd) {
 				make_new_connection(server_sockfd, &masterfds, &fdmax);
 			} else {
-				process_request(fd, &masterfds);
+				process_request(fd);
 
 				FD_CLR(fd, &masterfds);
 				close(fd);
@@ -200,57 +201,73 @@ static void make_new_connection(const int server_sockfd, fd_set* masterfds, int*
  * process a request from a client. It gets a service code, identifies a service
  * and execute service according to the service code.
  *
- * @param fd file descriptor to communicate. This fd should be removed from
- * masterfds
- * @masterfds master file descriptor set which manages all fds to read and write
+ * @param fd file descriptor to communicate.
  */
-static void process_request(const int fd, fd_set* masterfds)
+static void process_request(const int fd)
 {
 	unsigned int service_code = 0;
 	struct service_struct svc_struct;
 
 	/* try to get service code. If fail, then just return */
-	if (-1 == get_service_code(fd, masterfds, &service_code)) {
+	if (-1 == get_request(fd, &svc_struct)) {
 		printf("[Error] : failed to get service code = %d\n", service_code);
 		return;
 	}
 
-	/**
-	 * if there is a message from a client, then
-	 * identify service.
-	 */
-	if (1 == identify_service(service_code, &svc_struct)) {
-		/* execute service */
-		execute_service(fd, svc_struct);
-	}
-	else {
-		printf("[Error] : cannot identify service\n");
-		printf("        : server[%d], service[%d]\n", svc_struct.server_num, svc_struct.service_type);
-		printf("        : at %d, %s\n", __LINE__, __FILE__);
-	}
+	/* execute service */
+	execute_service(fd, svc_struct);
 }
 
 
 
 /**
- * receive a service code from fd.
+ * receive a request from a client. The request may consist of two command
+ * 1) service code + (-) 2) command.
  *
- * @param fd file descriptor to receive service code
- * @param readfds file descriptor set for reading
- * @param service_code a variable to contain service code
+ * Particularly onevm, condor* releated commands are being sent from a client with
+ * service code + its shell command
+ *
+ * @param fd file descriptor to receive service code and command
+ * @param svc_struct contains a server, service type and command
  *
  * @return 1 if successfully received; otherwise -1
  */
-static int get_service_code(const int fd, fd_set* readfds, unsigned int* service_code)
+static int get_request(const int fd, struct  service_struct* svc_struct)
 {
 
-	int ret;
 	unsigned int svc_code;
 
-	char buf[5];
+	if (-1 == get_service_code(fd, &svc_code)) return -1;
 
-	if ((ret = recv(fd, buf, 5, 0)) <= 0) {
-	//if ((ret = recv(fd, &svc_code, sizeof(unsigned int), 0)) <= 0) {
+	/* get server number  and check if it is correct */
+	svc_struct->server_num = get_server_num(svc_code);
+	if (-1 == check_server_num(svc_struct->server_num)) return -1;
+
+	/* get service type and check if it is correct */
+	svc_struct->service_type = get_service_type(svc_code);
+	if (-1 == check_service_type(svc_struct)) return -1;
+
+	/* get shell command if there is */
+	if (-1 == get_command_line(fd, svc_struct)) return -1;
+
+	dump_svc(svc_struct);
+
+	return 1;
+}
+
+/**
+ * get service code from fd
+ *
+ * @param fd file descriptor being used to communicated with a client
+ * @param svc_code service code to receive from the client
+ * @return 1 if success; otherwise -1
+ */
+static int get_service_code(const int fd, unsigned int* svc_code)
+{
+	int ret;
+	char buf[4];
+
+	if ((ret = recv(fd, buf, 4, 0)) <= 0) {
 		if(ret == 0)
 			/* connection closed */
 			printf("[MSG] : socket %d hung up\n", fd);
@@ -259,76 +276,84 @@ static int get_service_code(const int fd, fd_set* readfds, unsigned int* service
 
 		return -1;
 	}
-	//buf[9] = '\0';
 
+	*svc_code = atoi(buf);
+	if(*svc_code == 0) return -1;
 
-	*service_code = atoi(buf);
-
-	//printf("Hello: %s", buf);
-//	*service_code = 0;
-	/* convert a network ordered byte value to a host ordered value */
-//	*service_code = ntohl(svc_code);
-//	printf("[MSG] : service code (org) = %d\n", svc_code);
-	printf("[MSG] : service code (ntohl)= %d\n", *service_code);
-	if(*service_code == 0) return -1;
 	return 1;
+
 }
 
+
 /**
- * identify a service type from a given code which combined server number and
- * a service type in a single unsigned integer.
+ * check the server number if requested server and current running one are same.
+ * It is to prevent from executing commands which are not supported by
+ * running server
  *
- * @param svr_code an unsigned integer which contains server number and
- * a service type in a single value
- *
- * @param svc_struct a structure to be returned, containing resolved server
- * number and service type
- *
- * @return 1 if success; otherwise -1
+ * @param svr_num server number which is requested
+ * @return 1 if correct; otherwise -1
  */
-static int identify_service(const unsigned int svr_code,
-							 struct service_struct* svc_struct)
+static int check_server_num(int svr_num)
 {
-	unsigned int svr_num, svr_type;
-
-	/*
-	printf("[MSG] : service code = %d\n", svr_code);
-	printf("[MSG] : htonl = %d\n", htonl(svr_code));
-	printf("[MSG] : ntohl = %d\n", ntohl(svr_code));
-	printf("[MSG] : htonl->ntohl = %d\n", ntohl(htonl(svr_code)));
-	printf("[MSG] : ntohl->htonl = %d\n", htonl(ntohl(svr_code)));
-
-	printf("-----------------------------------------\n");
-	printf("[MSG] : htons = %d\n", htons(svr_code));
-	printf("[MSG] : ntohs = %d\n", ntohs(svr_code));
-	printf("[MSG] : htons->ntohs = %d\n", ntohs(htons(svr_code)));
-	printf("[MSG] : ntohs->htons = %d\n", htons(ntohs(svr_code)));
-	*/
-
-	svr_num = get_server_num(svr_code);
-
 	if (svr_num != server_num) {
 		printf("[Error] : Server number is not matched: cur_svr[%u] != req_svr[%u]\n",
 													server_num, svr_num);
 		return -1;
 	}
 
-	svr_type = get_service_type(svr_code);
+	return 1;
+}
 
-	switch (server_num) {
+/**
+ * receive a shell command line.
+ *
+ * @param fd file descriptor to receive command line from a client
+ * @svc_struct data structure to contain the command line
+ * @return 1 if success; otherwise -1
+ */
+static int get_command_line(const int fd, struct service_struct* svc_struct)
+{
+	char cmdbuf[CMD_LINE_LEN];
+	int ret;
+	int svr_num = svc_struct->server_num;
 
-	case SVR_SAM_STATION:
-		if (svr_type == 0 || svr_type >= SVC_SAM_MAX) {
-			printf("[Error] : service number is wrong: server[%u], service [%u]"
-					" at %d, %s\n", svr_num, svr_type, __LINE__, __FILE__);
+	/* copy command */
+	switch (svr_num) {
+	case SVR_ONE_CLOUD_SYSTEM:
+	case SVR_CONDOR_BATCH_SYSTEM:
+		if ((ret = recv(fd, cmdbuf, CMD_LINE_LEN, 0)) <= 0) {
+			if(ret == 0)
+				/* connection closed */
+				printf("[MSG] : socket %d hung up\n", fd);
+			else
+				printf("[Error] : recv() error lol at %d, %s.\n", __LINE__, __FILE__);
+
 			return -1;
 		}
-		break;
 
-	case SVR_CONDOR_BATCH_SYSTEM:
-		if (svr_type == 0 || svr_type >= SVC_CONDOR_MAX) {
+		bzero(svc_struct->cmdline, CMD_LINE_LEN);
+		strncpy(svc_struct->cmdline, cmdbuf, CMD_LINE_LEN);
+	}
+	return 1;
+}
+
+
+/**
+ * check service type
+ *
+ * @param svc_struct service structure containing service type
+ * @return 1 if valid; otherwise -1
+ */
+static int check_service_type(struct service_struct *svc_struct)
+{
+	int svr_num = svc_struct->server_num;
+	int svc_type = svc_struct->service_type;
+
+	switch (svr_num) {
+	case SVR_SAM_STATION:
+		if (svc_type == 0 || svc_type >= SVC_SAM_MAX) {
 			printf("[Error] : service number is wrong: server[%u], service [%u]"
-					" at %d, %s\n", svr_num, svr_type, __LINE__, __FILE__);
+					" at %d, %s\n", svr_num, svc_type, __LINE__, __FILE__);
 			return -1;
 		}
 		break;
@@ -337,13 +362,22 @@ static int identify_service(const unsigned int svr_code,
 		break;
 	}
 
-	svc_struct->server_num = svr_num;
-	svc_struct->service_type = svr_type;
-
-
 	return 1;
 }
 
+
+/**
+ * dump service structure
+ *
+ * @param svc_struct service structure to dump
+ */
+static void dump_svc(struct service_struct* svc_struct)
+{
+	printf("[MSG] : contents of service_struct\n");
+	printf("        server num  : [%d]\n", svc_struct->server_num);
+	printf("        service type: [%d]\n", svc_struct->service_type);
+	printf("        command     : %s\n", svc_struct->cmdline);
+}
 
 /**
  * get a server number from a given code. A server number was 8 bit

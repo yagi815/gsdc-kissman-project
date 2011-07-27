@@ -31,21 +31,10 @@ enum svc_sam {
 };
 
 
-
-enum svc_condor {
-	SVC_CONFOR_CONDOR_STATUS = 1,
-	SVC_CONFOR_CONDOR_Q,
-	SVC_CONDOR_PROCESSINFO,
-	SVC_CONDOR_LS,
-	SVC_CONDOR_MAX
-};
-
-
-
-
 struct service_struct {
 	unsigned int server_num;
 	unsigned int service_type;
+	char cmdline[CMD_LINE_LEN];
 };
 
 

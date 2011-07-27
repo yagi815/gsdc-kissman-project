@@ -9,7 +9,7 @@
 
 
 const char sam_cmd[][CMD_LINE_LEN] = {
-		"/bin/ls /home/rsyoung/wallpaper/",
+		"dummy command", /* never called */
 		"/bin/ls /home/rsyoung/wallpaper/",
 		"/bin/ls /home/rsyoung/wallpaper/",
 		"/bin/ls /home/rsyoung/wallpaper/",
@@ -18,13 +18,20 @@ const char sam_cmd[][CMD_LINE_LEN] = {
 		"/bin/ls /etc/",
 };
 
+
+/*
 const char condor_cmd[][CMD_LINE_LEN] = {
-		"/bin/ls /etc/",
+		"dummy command",
 		"condor_status",
 		"condor_q",
-		"/bin/cat /proc/cpuinfo",
-		"/bin/ls /etc/",
 };
+
+
+const char opennebula_cmd[][CMD_LINE_LEN] = {
+		"dummy command",
+		"onevm list",
+};
+*/
 
 
 int get_svc_cmdline(const struct service_struct svc_struct, char* cmdline);
@@ -163,7 +170,8 @@ int get_svc_cmdline(const struct service_struct svc_struct, char* cmdline)
 			return 1;
 
 	case SVR_CONDOR_BATCH_SYSTEM:
-		if (strcpy(cmdline, condor_cmd[svc_type]) != NULL)
+	case SVR_ONE_CLOUD_SYSTEM:
+		if (strcpy(cmdline, svc_struct.cmdline) != NULL)
 			return 1;
 
 	default:

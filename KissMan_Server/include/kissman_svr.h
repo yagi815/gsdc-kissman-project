@@ -12,6 +12,9 @@
 #define SVR_SAM_STATION					0x1
 #define SVR_PBS_BATCH_SYSTEM			0x2
 
+/* for opennebula cloud system */
+#define SVR_ONE_CLOUD_SYSTEM			0x5
+
 /* for cloudgate test purpose */
 #define SVR_CONDOR_BATCH_SYSTEM			0x10
 
