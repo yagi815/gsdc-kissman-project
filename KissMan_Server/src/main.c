@@ -115,16 +115,21 @@ int main(int argc, char* argv[])
 			/* if fd is not set in readfds, then skip the rest code */
 			if(!FD_ISSET(fd, &readfds)) continue;
 
-			if ( fd == server_sockfd) {
+			// printf("fd = %d\n", fd);
+
+			if (fd == server_sockfd) {
 				make_new_connection(server_sockfd, &masterfds, &fdmax);
 			} else {
 				process_request(fd, &masterfds);
+
 				FD_CLR(fd, &masterfds);
 				close(fd);
 				printf("[MSG] : fd = %d closed\n", fd);
 			}
 		}
 	}
+
+	close(server_sockfd);
 
 	return 0;
 }
@@ -172,6 +177,12 @@ static void make_new_connection(const int server_sockfd, fd_set* masterfds, int*
 	client_len = sizeof(client_address);
 	client_sockfd = accept(server_sockfd,
 			(struct sockaddr *)&client_address, &client_len);
+
+	if(client_sockfd < 0) {
+		printf("[Error] : cannot accept a new connection at %d, %s\n", __LINE__, __FILE__);
+		return;
+	}
+
 	FD_SET(client_sockfd, masterfds);
 	char clientIP[INET6_ADDRSTRLEN];
 
@@ -213,11 +224,12 @@ static void process_request(const int fd, fd_set* masterfds)
 		execute_service(fd, svc_struct);
 	}
 	else {
-		printf("[Error] : cannot identify service at %d, %s\n", __LINE__, __FILE__);
+		printf("[Error] : cannot identify service\n");
+		printf("        : server[%d], service[%d]\n", svc_struct.server_num, svc_struct.service_type);
+		printf("        : at %d, %s\n", __LINE__, __FILE__);
 	}
-
-
 }
+
 
 
 /**
@@ -233,8 +245,12 @@ static int get_service_code(const int fd, fd_set* readfds, unsigned int* service
 {
 
 	int ret;
+	unsigned int svc_code;
 
-	if ((ret = recv(fd, service_code, sizeof(unsigned int), 0)) <= 0) {
+	char buf[5];
+
+	if ((ret = recv(fd, buf, 5, 0)) <= 0) {
+	//if ((ret = recv(fd, &svc_code, sizeof(unsigned int), 0)) <= 0) {
 		if(ret == 0)
 			/* connection closed */
 			printf("[MSG] : socket %d hung up\n", fd);
@@ -243,11 +259,18 @@ static int get_service_code(const int fd, fd_set* readfds, unsigned int* service
 
 		return -1;
 	}
+	//buf[9] = '\0';
 
+
+	*service_code = atoi(buf);
+
+	//printf("Hello: %s", buf);
+//	*service_code = 0;
 	/* convert a network ordered byte value to a host ordered value */
-	//printf("[MSG] : service code = %d\n", *service_code);
-	*service_code = ntohl(*service_code);
-	//printf("[MSG] : ntohl = %d\n", *service_code);
+//	*service_code = ntohl(svc_code);
+//	printf("[MSG] : service code (org) = %d\n", svc_code);
+	printf("[MSG] : service code (ntohl)= %d\n", *service_code);
+	if(*service_code == 0) return -1;
 	return 1;
 }
 
