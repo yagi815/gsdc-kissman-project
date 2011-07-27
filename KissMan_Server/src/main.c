@@ -18,16 +18,19 @@
 static unsigned int get_server_num(const unsigned int svr_code);
 static unsigned int get_service_type(const unsigned int svr_code);
 
-static int is_new_connection(const int fd, const int server_sockfd, fd_set *readfds);
 static int get_service_code(const int fd, fd_set* readfds, unsigned int* service_code);
 
 static int  identify_service(const unsigned int svr_code,
 							 struct service_struct* svc_struct);
 
-static int get_valid_fd(const fd_set fds);
 extern int execute_service(const int fd, const struct service_struct svc_struct);
 
 static int server_num;
+
+static void make_new_connection(const int server_sockfd, fd_set* masterfds, int* fdmax);
+static void process_request(const int fd, fd_set* masterfds);
+static void *get_in_addr(struct sockaddr *sa);
+static void set_server_addr(struct sockaddr_in* svr_addr);
 
 
 int main(int argc, char* argv[])
@@ -39,11 +42,10 @@ int main(int argc, char* argv[])
 	struct sockaddr_in server_address;
 
 	int ret;
-	fd_set testfds, readfds;
+	fd_set masterfds, readfds;
 
 	/* arguments should be 2 for correct execution */
-	if ( argc != 2 )
-    {
+	if ( argc != 2 ) {
         /* ./kissman_svr <server number>, eg. ./kissman_svr 1 */
         printf( "usage: %s <server number>\n", argv[0] );
         exit(-1);
@@ -56,10 +58,20 @@ int main(int argc, char* argv[])
 	server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	printf("[MSG] : server_sockfd = %d\n", server_sockfd);
 
-	server_address.sin_family = AF_INET;
-	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-	server_address.sin_port = htons(PORT_NUM);
+
+	/* setsockopt: Handy debugging trick that lets
+	* us rerun the server immediately after we kill it;
+	* otherwise we have to wait about 20 secs.
+	* Eliminates "ERROR on binding: Address already in use" error.
+	*/
+	int optval = 1;
+	setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR,
+		 (const void *)&optval , sizeof(int));
+
+	set_server_addr(&server_address);
 	server_len = sizeof(server_address);
+
+
 
 	/* bind the socket to an address */
 	ret = bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
@@ -77,115 +89,134 @@ int main(int argc, char* argv[])
 	}
 
 	FD_ZERO(&readfds);
-	FD_ZERO(&testfds);
-	FD_SET(server_sockfd, &readfds);
+	FD_ZERO(&masterfds);
+	FD_SET(server_sockfd, &masterfds);
+
+	int fdmax = server_sockfd;
 
 	while(1)
 	{
 		int fd = -1;
 
-		testfds = readfds;
+		readfds = masterfds;
 
 		/* checks to see if any sockets are ready for reading */
-		ret = select(FD_SETSIZE, &testfds, (fd_set *)0,
+		ret = select(fdmax+1, &readfds, (fd_set *)0,
 										(fd_set *)0, (struct timeval *)0);
 		if(ret < 1) {
 			printf("[Error] : failure to select fd at %d, %s\n", __LINE__, __FILE__);
 			exit(-1);
 		}
 
-		/* get a file descriptor to read */
-		if ((fd = get_valid_fd(testfds)) == -1)
-			continue;
+		/* check if there is a fd to read */
 
-		/**
-		 * check if it is a new connection. If so, it create a client socket
-		 * fd, otherwise, it has to receive data from the fd
-		 */
-		if (1 == is_new_connection(fd, server_sockfd, &readfds))
-			continue;
+		for(fd = 0; fd <= fdmax; fd++) {
 
+			/* if fd is not set in readfds, then skip the rest code */
+			if(!FD_ISSET(fd, &readfds)) continue;
 
-		unsigned int service_code;
-		struct service_struct svc_struct;
-
-		/* try to get service code. If fail, then continue */
-		if (-1 == get_service_code(fd, &readfds, &service_code))
-			continue;
-
-		/**
-		 * if there is a message from a client, then
-		 * identify service.
-		 */
-		if (1 == identify_service(service_code, &svc_struct))
-		{
-			/* execute service */
-			execute_service(fd, svc_struct);
+			if ( fd == server_sockfd) {
+				make_new_connection(server_sockfd, &masterfds, &fdmax);
+			} else {
+				process_request(fd, &masterfds);
+				FD_CLR(fd, &masterfds);
+				close(fd);
+				printf("[MSG] : fd = %d closed\n", fd);
+			}
 		}
-		else
-		{
-			printf("[Error] : cannot identify service at %d, %s\n", __LINE__, __FILE__);
-		}
-
-		close(fd);
-		FD_CLR(fd, &readfds);
-
 	}
+
 	return 0;
 }
 
-
 /**
- * find a valid file descriptor in file descriptor set (fds)
+ * set server address
  *
- * @param fds file descriptor sets
- * @return a valid file descriptor if there is; otherwise -1
+ * @param svr_addr sockaddr_in struct to be filled with values
  */
-static int get_valid_fd(const fd_set fds)
+static void set_server_addr(struct sockaddr_in* svr_addr)
 {
-	int fd;
-
-	/**
-	 * check if fd is a member of fds.
-	 * If so, returns fd, otherwise -1
-	 */
-	for (fd = 0; fd < FD_SETSIZE; fd++)
-		if(FD_ISSET(fd, &fds)) break;
-
-	if (fd > FD_SETSIZE) return -1;
-
-	printf("[MSG] : fd = %d\n", fd);
-	return fd;
+	svr_addr->sin_family = AF_INET;
+	svr_addr->sin_addr.s_addr = htonl(INADDR_ANY);
+	svr_addr->sin_port = htons(PORT_NUM);
 }
 
-
 /**
- * evaluate if the connection is new. If fd == server_sockfd, need to create
- * a new connection; otherwise there is data to be received.
+ * get sockaddr for IPv4 or IPv6
  *
- * @param fd file descriptor which is ready to receive data
- * @param server_sockfd server socket file descriptor
- * @param readfds read file descriptor set
- *
- * @return 1 if fd == server_sockfd; otherwise -1
- */
-static int is_new_connection(const int fd, const int server_sockfd, fd_set *readfds)
+ * @param sa socket address
+ *  */
+static void *get_in_addr(struct sockaddr *sa)
 {
-	int client_sockfd;
-	socklen_t client_len;
-	struct sockaddr_in client_address;
-
-	/* it is a new connection */
-	if (fd == server_sockfd) {
-		client_len = sizeof(client_address);
-		client_sockfd = accept(server_sockfd,
-				(struct sockaddr *)&client_address, &client_len);
-		FD_SET(client_sockfd, readfds);
-		printf("[MSG] : adding client on fd %d\n", client_sockfd);
-		return 1;
+	if (sa->sa_family == AF_INET) {
+		return &(((struct sockaddr_in*)sa)->sin_addr);
 	}
 
-	return -1;
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+/**
+ * make a new connection from a client
+ *
+ * @param server_sockfd server socket fd
+ * @param masterfds master file descriptor set
+ * @param fdmax max file descriptor to return
+ */
+static void make_new_connection(const int server_sockfd, fd_set* masterfds, int* fdmax)
+{
+
+	int client_sockfd;
+	socklen_t client_len;
+	struct sockaddr_storage client_address;
+
+	client_len = sizeof(client_address);
+	client_sockfd = accept(server_sockfd,
+			(struct sockaddr *)&client_address, &client_len);
+	FD_SET(client_sockfd, masterfds);
+	char clientIP[INET6_ADDRSTRLEN];
+
+	printf("[MSG] : new connection from %s on socket %d\n",
+					inet_ntop(client_address.ss_family,
+							  get_in_addr((struct sockaddr*)&client_address),
+							  clientIP, INET6_ADDRSTRLEN),
+							  client_sockfd);
+
+	if(client_sockfd > *fdmax) *fdmax = client_sockfd;
+
+}
+
+/**
+ * process a request from a client. It gets a service code, identifies a service
+ * and execute service according to the service code.
+ *
+ * @param fd file descriptor to communicate. This fd should be removed from
+ * masterfds
+ * @masterfds master file descriptor set which manages all fds to read and write
+ */
+static void process_request(const int fd, fd_set* masterfds)
+{
+	unsigned int service_code = 0;
+	struct service_struct svc_struct;
+
+	/* try to get service code. If fail, then just return */
+	if (-1 == get_service_code(fd, masterfds, &service_code)) {
+		printf("[Error] : failed to get service code = %d\n", service_code);
+		return;
+	}
+
+	/**
+	 * if there is a message from a client, then
+	 * identify service.
+	 */
+	if (1 == identify_service(service_code, &svc_struct)) {
+		/* execute service */
+		execute_service(fd, svc_struct);
+	}
+	else {
+		printf("[Error] : cannot identify service at %d, %s\n", __LINE__, __FILE__);
+	}
+
+
 }
 
 
@@ -210,12 +241,13 @@ static int get_service_code(const int fd, fd_set* readfds, unsigned int* service
 		else
 			printf("[Error] : recv() error lol at %d, %s.\n", __LINE__, __FILE__);
 
-		FD_CLR(fd, readfds);
-		close(fd);
-
 		return -1;
 	}
 
+	/* convert a network ordered byte value to a host ordered value */
+	//printf("[MSG] : service code = %d\n", *service_code);
+	*service_code = ntohl(*service_code);
+	//printf("[MSG] : ntohl = %d\n", *service_code);
 	return 1;
 }
 
@@ -236,11 +268,24 @@ static int identify_service(const unsigned int svr_code,
 {
 	unsigned int svr_num, svr_type;
 
-	printf("service code = %d\n", svr_code);
+	/*
+	printf("[MSG] : service code = %d\n", svr_code);
+	printf("[MSG] : htonl = %d\n", htonl(svr_code));
+	printf("[MSG] : ntohl = %d\n", ntohl(svr_code));
+	printf("[MSG] : htonl->ntohl = %d\n", ntohl(htonl(svr_code)));
+	printf("[MSG] : ntohl->htonl = %d\n", htonl(ntohl(svr_code)));
+
+	printf("-----------------------------------------\n");
+	printf("[MSG] : htons = %d\n", htons(svr_code));
+	printf("[MSG] : ntohs = %d\n", ntohs(svr_code));
+	printf("[MSG] : htons->ntohs = %d\n", ntohs(htons(svr_code)));
+	printf("[MSG] : ntohs->htons = %d\n", htons(ntohs(svr_code)));
+	*/
+
 	svr_num = get_server_num(svr_code);
 
 	if (svr_num != server_num) {
-		printf("Server number is not matched: server[%u] != [%u]\n",
+		printf("[Error] : Server number is not matched: cur_svr[%u] != req_svr[%u]\n",
 													server_num, svr_num);
 		return -1;
 	}
@@ -309,4 +354,3 @@ static unsigned int get_service_type(const unsigned int svr_code)
 {
 	return svr_code & ((1 << OFFSET_SERVER_TYPE)-1);
 }
-
