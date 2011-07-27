@@ -41,10 +41,10 @@
 
 #define BUF_LENGTH						1024
 
-unsigned int server_num = SVR_SAM_STATION;
-unsigned int service_num = 5;
-
-
+unsigned int server_num = SVR_CONDOR_BATCH_SYSTEM;
+unsigned int service_num = 4;
+void itoa(int n, char s[]);
+void reverse(char s[]);
 
 int main()
 {
@@ -74,7 +74,14 @@ int main()
 
 	printf("server_num: = %x, %d, %d\n", server_num, server_num, SVR_CONDOR_BATCH_SYSTEM);
 
-	write(sockfd, &server_num, sizeof(unsigned int));
+	//server_num = htonl(server_num);
+	//write(sockfd, &server_num, sizeof(unsigned int));
+
+	char buf[4];
+	itoa(server_num, buf);
+	//server_num = itoa(server_num);
+	write(sockfd, buf, sizeof(buf));
+
 
 	char buffer[1024];
 
@@ -83,6 +90,8 @@ int main()
 	printf("sockfd == %d\n", sockfd);
 
 	do {
+
+		bzero(buffer,1024);
 
 		//nbytes = read(sockfd, buffer, sizeof(buffer)-1);
 		nbytes = recv(sockfd, buffer, BUF_LENGTH, 0);
@@ -97,7 +106,6 @@ int main()
             printf("recv failed: \n");
 
 		//printf("%s", buffer);
-		bzero(buffer,1024);
 	} while (nbytes > 0);
 
 	printf("sockfd == %d\n", sockfd);
@@ -105,3 +113,36 @@ int main()
 	close(sockfd);
 	return 0;
 }
+
+
+/* itoa:  convert n to characters in s */
+void itoa(int n, char s[])
+{
+    int i, sign;
+
+    if ((sign = n) < 0)  /* record sign */
+        n = -n;          /* make n positive */
+    i = 0;
+    do {       /* generate digits in reverse order */
+        s[i++] = n % 10 + '0';   /* get next digit */
+    } while ((n /= 10) > 0);     /* delete it */
+    if (sign < 0)
+        s[i++] = '-';
+    s[i] = '\0';
+    reverse(s);
+}
+
+
+/* reverse:  reverse string s in place */
+void reverse(char s[])
+{
+    int i, j;
+    char c;
+
+    for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+        c = s[i];
+        s[i] = s[j];
+        s[j] = c;
+    }
+}
+
