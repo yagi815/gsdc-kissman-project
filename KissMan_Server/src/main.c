@@ -46,14 +46,16 @@ int main(int argc, char* argv[])
 	fd_set masterfds, readfds;
 
 	/* arguments should be 2 for correct execution */
+	/*
+	 * temporally blocked
 	if ( argc != 2 ) {
-        /* ./kissman_svr <server number>, eg. ./kissman_svr 1 */
         printf( "usage: %s <server number>\n", argv[0] );
         exit(-1);
     }
-
-	/* convert a given argument to server number */
 	server_num = atoi(argv[1]);
+	*/
+
+
 
 	/* create a socket */
 	server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -241,7 +243,12 @@ static int get_request(const int fd, struct  service_struct* svc_struct)
 
 	/* get server number  and check if it is correct */
 	svc_struct->server_num = get_server_num(svc_code);
+
+	/*
+	 * temporally blocked
 	if (-1 == check_server_num(svc_struct->server_num)) return -1;
+	*/
+
 
 	/* get service type and check if it is correct */
 	svc_struct->service_type = get_service_type(svc_code);
