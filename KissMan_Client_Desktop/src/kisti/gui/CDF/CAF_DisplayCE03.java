@@ -27,7 +27,7 @@ import javax.swing.border.TitledBorder;
  * @Version:
  *
  */
-public class DisplayCE03 extends JPanel {
+public class CAF_DisplayCE03 extends JPanel {
 	// private JTextField enter;
 	private JEditorPane editorPane;
 	private String url;
@@ -38,7 +38,7 @@ public class DisplayCE03 extends JPanel {
 	/**
 	 * 
 	 */
-	public DisplayCE03() {
+	public CAF_DisplayCE03() {
 		url = "http://vobox02.sdfarm.kr/pbswebmon/pbswebmon-ce03/cgi-bin/graph.py?start=-24h";
 		
 		editorPane = new JEditorPane();

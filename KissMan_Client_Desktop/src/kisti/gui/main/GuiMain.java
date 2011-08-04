@@ -2,8 +2,9 @@ package kisti.gui.main;
 
 import java.awt.Color;
 import java.awt.MenuBar;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -13,10 +14,12 @@ import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import kisti.gui.CDF.CDFJobTable;
-import kisti.gui.CDF.DisplayCE03;
-import kisti.gui.CDF.JobSubmitionGraph;
-import kisti.gui.CDF.WorkerNodeStatus;
+import kisti.gui.CDF.CAF_CDFJobTable;
+import kisti.gui.CDF.CAF_DisplayCE03;
+import kisti.gui.CDF.CAF_JobSubmitionGraph;
+import kisti.gui.CDF.CAF_WorkerNodeStatus;
+import kisti.gui.CDF.KistiCI;
+import kisti.gui.CDF.SAM_CpuMonitoring;
 
 
 
@@ -35,16 +38,17 @@ import kisti.gui.CDF.WorkerNodeStatus;
  * @Version: 1.0
  *
  */
-public class GuiMain extends JFrame{	
+public class GuiMain extends JFrame {	
+	
 
 	private static int KISSMAN_WIDTH = 1366;
 	private static int KISSMAN_HEIGHT = 768;
 	private JPanel panelTree = null;
-	private JPanel panelCDF01, panelCDF02, panelAlice01, panelAlice02, panelBelle01, panelBelle02, panelKistiCI, panelBottom;
+	private JPanel currentPanel, panelCDF01, panelCDF02, panelAlice01, panelAlice02, panelBelle01, panelBelle02, panelKistiCI, panelBottom;
 	
 	private JTable tableCDFWorkernodes = null;
 	private JTable tableCDFJobTotal = null;
-	private JobSubmitionGraph jobSubmitionGraph = null;
+	private CAF_JobSubmitionGraph jobSubmitionGraph = null;
 	
 	private JTree treeRoot = null;
 
@@ -55,12 +59,12 @@ public class GuiMain extends JFrame{
 	 * Desc : Constructor of GuiMain.java class
 	 * 
 	 */
-	public GuiMain() {
-		
+	public GuiMain() {		
 		this.setTitle("KissMan");
 		this.setSize(KISSMAN_WIDTH, KISSMAN_HEIGHT);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(null);
+		this.setResizable(false);
 						
 		/**
 		 * 2. treePanel		 
@@ -71,11 +75,16 @@ public class GuiMain extends JFrame{
 		this.add(panelTree);
 		
 		/**
-		 * 3. CDF01 ... CDF02 ....
+		 * 3. CDF01 ... CDF02 .... Alice..
 		 */
 		panelCDF01 = MakeCDF01Panel();
 		panelCDF01.setBackground(Color.WHITE);
 		panelCDF01.setBounds(234, 12, 1095, 676);
+		
+		panelCDF02 = MakeCDF02Panel();
+		panelCDF02.setBackground(Color.WHITE);
+		panelCDF02.setBounds(234, 12, 1095, 676);
+		
 		this.add(panelCDF01);
 		
 		/**
@@ -93,16 +102,43 @@ public class GuiMain extends JFrame{
 		this.add(panelBottom);
 		
 		
-		
 		this.setVisible(true);		
 	}
 	
+	
+	/**
+	 * 
+	 * Desc :
+	 * @Method Name : makeMenu
+	 * @return
+	 *
+	 */
 	private MenuBar makeMenu() {		
-		MenuBar menubar = new MenuBar();
-		
+		MenuBar menubar = new MenuBar();		
 		return menubar;
 	}
 	
+	/**
+	 * 
+	 * Desc :
+	 * @Method Name : drawMainPanel
+	 * @param panelName
+	 *
+	 */
+	private void changeMainPanel(String panelName){		
+		//this.remove(0);
+		if (panelName.equals("CDF_CAF")) {	
+			
+			this.add(panelCDF01);			
+			System.out.println(panelName);
+		} else if (panelName.equals("CDF_SAM")) {
+			
+			this.add(panelCDF02);
+			System.out.println(panelName);
+		}
+		
+		repaint();
+	}
 	
 	/**
 	 * 
@@ -117,19 +153,35 @@ public class GuiMain extends JFrame{
 		
 		DefaultMutableTreeNode treeTop = new DefaultMutableTreeNode("KISTI System Monitoring");
 		DefaultMutableTreeNode treeCDF = new DefaultMutableTreeNode("CDF");
+		DefaultMutableTreeNode treeCDF_CAF = new DefaultMutableTreeNode("CDF_CAF");
+		DefaultMutableTreeNode treeCDF_SAM = new DefaultMutableTreeNode("CDF_SAM");
+		
 		DefaultMutableTreeNode treeBelle = new DefaultMutableTreeNode("Belle");
 		DefaultMutableTreeNode treeAlice = new DefaultMutableTreeNode("Alice");
-				
+		
 		treeTop.add(treeCDF);
+		treeCDF.add(treeCDF_CAF);
+		treeCDF.add(treeCDF_SAM);
+		
 		treeTop.add(treeBelle);
 		treeTop.add(treeAlice);
 		
 		JTree jtreeMain = new JTree(treeTop);
 		jtreeMain.setBounds(12, 12, 176, 280);
+
+		jtreeMain.addMouseListener(
+				new MouseAdapter() {
+					public void mouseClicked (MouseEvent e){
+						JTree t = (JTree)e.getSource();
+						String sourceName = t.getLastSelectedPathComponent().toString();
+//						System.out.println(sourceName);
+						changeMainPanel(sourceName);						
+					}
+				}
+		);
 		
 		
-		panel.add(jtreeMain);		
-				
+		panel.add(jtreeMain);				
 		return panel;
 	}
 	/**
@@ -146,7 +198,7 @@ public class GuiMain extends JFrame{
 		/** 
 		 * display CE03 activity
 		 */
-		DisplayCE03 displayCE03 = new DisplayCE03();
+		CAF_DisplayCE03 displayCE03 = new CAF_DisplayCE03();
 		displayCE03.setBounds(12, 12, 445, 330);
 		panel.add(displayCE03);
 		
@@ -174,7 +226,7 @@ public class GuiMain extends JFrame{
 		/**
 		 * display wokernode table
 		 */
-		JPanel wnStatus = new WorkerNodeStatus();
+		JPanel wnStatus = new CAF_WorkerNodeStatus();
 		wnStatus.setBounds(484, 60, 599, 353);
 		panel.add(wnStatus);
 		
@@ -196,20 +248,21 @@ public class GuiMain extends JFrame{
 		/**
 		 * display Jobtable
 		 */
-		JPanel CDFJobTable = new CDFJobTable();
+		JPanel CDFJobTable = new CAF_CDFJobTable();
 		CDFJobTable.setBounds(12, 468, 569, 206);
 		panel.add(CDFJobTable);
 		
 		/**
 		 * display number of total jobs 
 		 */
-		JobSubmitionGraph jobSubmitionGraph = new JobSubmitionGraph();
+		CAF_JobSubmitionGraph jobSubmitionGraph = new CAF_JobSubmitionGraph();
 		jobSubmitionGraph.setBounds(593, 458, 490, 206);
 		panel.add(jobSubmitionGraph);		
 		
 		
 		return panel;
 	}
+	
 	/**
 	 * 
 	 * Desc : make cdf 02 panel 
@@ -220,6 +273,17 @@ public class GuiMain extends JFrame{
 	private JPanel MakeCDF02Panel(){
 		JPanel panel = new JPanel();		
 		panel.setLayout(null);
+		
+		/*
+		 * cpu monitoring
+		 */
+		SAM_CpuMonitoring cpu = new SAM_CpuMonitoring();
+		cpu.setBounds(12, 12, 445, 330);
+		cpu.surf.start();
+		panel.add(cpu);
+		
+		
+		
 		return panel;
 	}
 	/**
@@ -243,10 +307,7 @@ public class GuiMain extends JFrame{
 	 *
 	 */
 	private JPanel makeKistiCI(){
-		JPanel panel = new JPanel();
-		//E:/Java_workspace/KissMan_Client_Desktop/src/kisti/gui/main/Images
-		panel.add(new JLabel(new ImageIcon("E:/Java_workspace/KissMan_Client_Desktop/src/kisti/gui/main/Images/KISTI.gif")));
-		panel.setBackground(Color.WHITE);
+		JPanel panel = new KistiCI();		
 		return panel;
 	}
 	
@@ -265,6 +326,7 @@ public class GuiMain extends JFrame{
 	}
 	
 	
+	
 	/**
 	 * 
 	 * Desc : main 
@@ -276,4 +338,8 @@ public class GuiMain extends JFrame{
 		// TODO Auto-generated method stub
 		GuiMain m = new GuiMain();		
 	}
+
+
+
+	
 }

@@ -69,7 +69,7 @@ public class KissManDatabase {
 	 * @return obj 
 	 *
 	 */
-	public Object requestDataFromDataBase(String serviceName){
+	public Object requestDataToDataBase(String serviceName){
 		//요청한 서비스 선택하여 해당 펑션 호출
 		Object obj = null;
 		
@@ -172,7 +172,7 @@ public class KissManDatabase {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		KissManDatabase c = new KissManDatabase();
-		c.requestDataFromDataBase("jobsubmition");
+		c.requestDataToDataBase("jobsubmition");
 	}
 }
 

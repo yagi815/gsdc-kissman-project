@@ -1,17 +1,13 @@
 package kisti.gui.CDF;
 
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.GridBagLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 
-import kisti.module.database.KissManDatabase;
+import kisti.server.connectToServer;
 
 
 
@@ -30,15 +26,49 @@ import kisti.module.database.KissManDatabase;
  * @Version:
  *
  */
-public class WorkerNodeStatus extends JPanel{
+public class CAF_WorkerNodeStatus extends JPanel{
 
+//134.75.123.117 : wn1017	
+	/* =======================================================================
+	 for sv in $(seq -f wn10%02g.sdfarm.kr 17 38) $(seq -f wn20%02g.sdfarm.kr \ 
+	 01 12) $(seq -f wn20%02g.sdfarm.kr 25 31);   do echo "### $sv ###";  \
+	 ssh $sv 'df -h /tmp' ; done
+	 
+	 
+	 
+result : 
+	 
+### wn2029.sdfarm.kr ###
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/rootvg-tmp
+                      2.0G  153M  1.7G   9% /tmp
+### wn2030.sdfarm.kr ###
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/rootvg-tmp
+                      2.0G  153M  1.7G   9% /tmp
+### wn2031.sdfarm.kr ###
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/rootvg-tmp
+                      2.0G  153M  1.7G   9% /tmp
+	 
+	 
+	 =======================================================================*/
+	
+	
     private JTable table;
+    private Object obj;
     
     /**
      * 
      * Desc : Constructor of WorkerNodeStatus.java class
      */
-    public WorkerNodeStatus() {
+    public CAF_WorkerNodeStatus() {
+    	
+    	
+    	connectToServer sc = new connectToServer();
+    	obj = sc.requestDataToServer("WorkerNodeStatus");
+    	
+    	
             // TODO Auto-generated constructor stub
             String header[] = {"Name","Power","running","Server","Etc"};
             String cells[][] ={
@@ -53,6 +83,7 @@ public class WorkerNodeStatus extends JPanel{
             };
 
             table = new JTable(cells,header);
+//            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             table.setBackground(new Color(255, 255, 204));
 
             this.setBackground(Color.WHITE);
@@ -69,7 +100,7 @@ public class WorkerNodeStatus extends JPanel{
     public static void main(String[] args) {
             // TODO Auto-generated method stub
             JFrame f = new JFrame();
-            WorkerNodeStatus w = new WorkerNodeStatus();
+            CAF_WorkerNodeStatus w = new CAF_WorkerNodeStatus();
             f.add(w);
             f.setSize(650,400);
             f.setVisible(true);

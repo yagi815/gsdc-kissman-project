@@ -26,7 +26,7 @@ import kisti.module.database.KissManDatabase;
  * @Version:
  *
  */
-public class CDFJobTable extends JPanel{
+public class CAF_CDFJobTable extends JPanel{
 
     private JTable table;
     
@@ -34,10 +34,10 @@ public class CDFJobTable extends JPanel{
      * 
      * Desc : Constructor of WorkerNodeStatus.java class
      */
-	public CDFJobTable() {
+	public CAF_CDFJobTable() {
 		// TODO Auto-generated constructor stub
 		KissManDatabase db = new KissManDatabase();
-		Object obj = db.requestDataFromDataBase("CDFJobTable");
+		Object obj = db.requestDataToDataBase("CDFJobTable");
 
 		Vector vector = (Vector) obj;
 		String jobTableheader[] = { "Month", "Period", "Users", "Jobs(Total)",
@@ -96,7 +96,7 @@ public class CDFJobTable extends JPanel{
     public static void main(String[] args) {
             // TODO Auto-generated method stub
             JFrame f = new JFrame();
-            CDFJobTable w = new CDFJobTable();
+            CAF_CDFJobTable w = new CAF_CDFJobTable();
             f.add(w);
             f.setSize(650,400);
             f.setVisible(true);
