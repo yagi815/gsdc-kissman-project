@@ -53,12 +53,13 @@ public class KissManDatabase {
 	public void CloseDatabase(){
 		try {
 			conn.close();
-			stmt.close();			
+			stmt.close();
+			System.out.println("-------------- DB connected.---------------");
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-			System.out.println(e.toString());
-		}
+			System.out.println(e.toString());		
+			}	
 	}
 	
 	/**

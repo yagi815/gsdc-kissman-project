@@ -321,7 +321,7 @@ public class GuiMain extends JFrame {
 	private JPanel makeBottomPanel(){
 		JPanel panel = new JPanel();		
 		panel.setBackground(new Color(153, 51, 51 ));	
-		panel.add(new JLabel("Kisti System Monitoring (KissMan) V 1.0                      Copylight \u24D2 2011 KISTI, Org. All rights reserved.  ",SwingConstants.RIGHT));		
+		panel.add(new JLabel("Kisti System Manager (KissMan) V 1.0                      Copylight \u24D2 2011 KISTI, Org. All rights reserved.  ",SwingConstants.RIGHT));		
 		return panel;
 	}
 	
