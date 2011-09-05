@@ -9,14 +9,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import kisti.gui.CDF.CAF_CDFJobTable;
 import kisti.gui.CDF.CAF_DisplayCE03;
 import kisti.gui.CDF.CAF_JobSubmitionGraph;
+import kisti.gui.CDF.CAF_QueueStatus;
 import kisti.gui.CDF.CAF_WorkerNodeStatus;
 import kisti.gui.CDF.KistiCI;
 import kisti.gui.CDF.SAM_CpuMonitoring;
@@ -38,13 +40,13 @@ import kisti.gui.CDF.SAM_CpuMonitoring;
  * @Version: 1.0
  *
  */
-public class GuiMain extends JFrame {	
+public class GuiMain extends JFrame   {	
 	
 
 	private static int KISSMAN_WIDTH = 1366;
 	private static int KISSMAN_HEIGHT = 768;
 	private JPanel panelTree = null;
-	private JPanel currentPanel, panelCDF01, panelCDF02, panelAlice01, panelAlice02, panelBelle01, panelBelle02, panelKistiCI, panelBottom;
+	private JPanel currentMainPanel, panelCDF01, panelCDF02, panelAlice01, panelAlice02, panelBelle01, panelBelle02, panelKistiCI, panelBottom;
 	
 	private JTable tableCDFWorkernodes = null;
 	private JTable tableCDFJobTotal = null;
@@ -78,6 +80,8 @@ public class GuiMain extends JFrame {
 		 * 3. CDF01 ... CDF02 .... Alice..
 		 */
 		panelCDF01 = MakeCDF01Panel();
+		//System.out.println("panelCDF01 name="+panelCDF01.getName());
+		currentMainPanel = panelCDF01;
 		panelCDF01.setBackground(Color.WHITE);
 		panelCDF01.setBounds(234, 12, 1095, 676);
 		
@@ -85,7 +89,9 @@ public class GuiMain extends JFrame {
 		panelCDF02.setBackground(Color.WHITE);
 		panelCDF02.setBounds(234, 12, 1095, 676);
 		
-		this.add(panelCDF01);
+		
+		//currentPanel = panelCDF01;
+		this.add(panelCDF02);
 		
 		/**
 		 * 4. KISTI CI panel
@@ -100,6 +106,7 @@ public class GuiMain extends JFrame {
 		panelBottom = makeBottomPanel();
 		panelBottom.setBounds(0, 700, 1350, 30);
 		this.add(panelBottom);
+		
 		
 		
 		this.setVisible(true);		
@@ -125,21 +132,29 @@ public class GuiMain extends JFrame {
 	 * @param panelName
 	 *
 	 */
-	private void changeMainPanel(String panelName){		
-		//this.remove(0);
-		if (panelName.equals("CDF_CAF")) {	
-			
-			this.add(panelCDF01);			
-			System.out.println(panelName);
-		} else if (panelName.equals("CDF_SAM")) {
-			
-			this.add(panelCDF02);
-			System.out.println(panelName);
-		}
+	private void changeMainPanel(MouseEvent e){		
+
+		JTree t = (JTree)e.getSource();
+		String sourceName = t.getLastSelectedPathComponent().toString();
+		System.out.println("tree:"+sourceName);
 		
+		System.out.println( "no of component="+this.getComponentCount() );
+		
+		//System.out.println("current Panel name "+ currentMainPanel.getName() );
+		
+		
+		if (sourceName.equals("CDF_CAF")) {	
+			this.add(panelCDF02);			
+		} else if (sourceName.equals("CDF_SAM")) {	
+			this.add(panelCDF01);			
+		} else if (sourceName.equals("Alice")) {
+			this.add(panelAlice01);			
+		}		
+		System.out.println("nothing");
 		repaint();
 	}
 	
+		
 	/**
 	 * 
 	 * Desc : makeTreePanel
@@ -152,13 +167,15 @@ public class GuiMain extends JFrame {
 		panel.setLayout(null);
 		
 		DefaultMutableTreeNode treeTop = new DefaultMutableTreeNode("KISTI System Monitoring");
-		DefaultMutableTreeNode treeCDF = new DefaultMutableTreeNode("CDF");
-		DefaultMutableTreeNode treeCDF_CAF = new DefaultMutableTreeNode("CDF_CAF");
-		DefaultMutableTreeNode treeCDF_SAM = new DefaultMutableTreeNode("CDF_SAM");
 		
-		DefaultMutableTreeNode treeBelle = new DefaultMutableTreeNode("Belle");
-		DefaultMutableTreeNode treeAlice = new DefaultMutableTreeNode("Alice");
+			DefaultMutableTreeNode treeCDF = new DefaultMutableTreeNode("CDF");		
+				DefaultMutableTreeNode treeCDF_CAF = new DefaultMutableTreeNode("CDF_CAF");
+				DefaultMutableTreeNode treeCDF_SAM = new DefaultMutableTreeNode("CDF_SAM");
+			
+			DefaultMutableTreeNode treeBelle = new DefaultMutableTreeNode("Belle");
+			DefaultMutableTreeNode treeAlice = new DefaultMutableTreeNode("Alice");
 		
+
 		treeTop.add(treeCDF);
 		treeCDF.add(treeCDF_CAF);
 		treeCDF.add(treeCDF_SAM);
@@ -171,19 +188,16 @@ public class GuiMain extends JFrame {
 
 		jtreeMain.addMouseListener(
 				new MouseAdapter() {
-					public void mouseClicked (MouseEvent e){
-						JTree t = (JTree)e.getSource();
-						String sourceName = t.getLastSelectedPathComponent().toString();
-//						System.out.println(sourceName);
-						changeMainPanel(sourceName);						
+					public void mouseReleased (MouseEvent e){		
+						changeMainPanel(e);						
 					}
 				}
-		);
-		
-		
+		);		
+
 		panel.add(jtreeMain);				
 		return panel;
 	}
+	
 	/**
 	 * 
 	 * Desc : makeCDF01Panel
@@ -194,6 +208,7 @@ public class GuiMain extends JFrame {
 	private JPanel MakeCDF01Panel(){
 		JPanel panel = new JPanel();		
 		panel.setLayout(null);
+		panel.setName("panelCDF01");
 		
 		/** 
 		 * display CE03 activity
@@ -204,16 +219,10 @@ public class GuiMain extends JFrame {
 		
 		/**
 		 *  display ce03 queue jobs		  
-		 */
-		JTextArea textareaDisplayQueue = new JTextArea();
-		textareaDisplayQueue.setText("Queue              Max   Tot   Ena   Str   Que   Run   Hld   Wat   Trn   Ext T \n"
-				+ "----------------   ---   ---   ---   ---   ---   ---   ---   ---   ---   ---		- \n"
-				+ "belle                0     0   yes   yes     0     0     0     0     0     0		E \n"
-				+ "osgcdf               0   235   yes   yes     0   234     0     0     0     1 	E \n"
-				);
-		textareaDisplayQueue.setBackground(new Color(255, 204, 204));
-		textareaDisplayQueue.setBounds(12, 354, 445, 70);		
-		panel.add(textareaDisplayQueue);
+		 */	
+		JPanel panelQueueStatus = new CAF_QueueStatus();
+		panelQueueStatus.setBounds(12, 354, 445, 70);
+		panel.add(panelQueueStatus);
 		
 		/** 
 		 * display label for status of workernodes
@@ -221,8 +230,7 @@ public class GuiMain extends JFrame {
 		JLabel labelCDFWokerNodes = new JLabel("Kisti Workernode's Status for CDF");
 		labelCDFWokerNodes.setBounds(484, 36 ,205 ,18);
 		panel.add(labelCDFWokerNodes);
-		
-		
+
 		/**
 		 * display wokernode table
 		 */
@@ -258,10 +266,10 @@ public class GuiMain extends JFrame {
 		CAF_JobSubmitionGraph jobSubmitionGraph = new CAF_JobSubmitionGraph();
 		jobSubmitionGraph.setBounds(593, 458, 490, 206);
 		panel.add(jobSubmitionGraph);		
-		
-		
+				
 		return panel;
 	}
+	
 	
 	/**
 	 * 
@@ -271,21 +279,64 @@ public class GuiMain extends JFrame {
 	 *
 	 */
 	private JPanel MakeCDF02Panel(){
-		JPanel panel = new JPanel();		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.gray);
 		panel.setLayout(null);
-		
-		/*
-		 * cpu monitoring
+		panel.setName("panelCDF02");
+//		
+//		JPanel p = new JPanel();
+//		p.setSize(100, 100);
+//		p.setBounds(12, 12, 100,100);
+//		p.setBackground(Color.red);
+//		panel.add(p);
+
+//		/**
+//		 * display SAM Station
+//		 */
+//		JLabel label = new JLabel("SAM Station");
+//		label.setBounds(12,12, 100, 30);
+//		panel.add(label);
+//		
+		/**
+		 * display cpu & memory panel
 		 */
-		SAM_CpuMonitoring cpu = new SAM_CpuMonitoring();
-		cpu.setBounds(12, 12, 445, 330);
-		cpu.surf.start();
-		panel.add(cpu);
+		JPanel displayCpuMon = new SAM_CpuMonitoring();
+		//displayCpuMon.setBackground(Color.red);
+		displayCpuMon.setBounds(12, 12, 445, 500);
+		panel.add(displayCpuMon);
+//		
+//		/**
+//		 * display Seperator1 panel
+//		 */
+//		JPanel panelSeperator1 = new JPanel();
+//		panelSeperator1.setBackground(new Color(153, 153, 153));
+//		panelSeperator1.setBounds(0, 226, 1095, 10);
+//		panel.add(panelSeperator1);
+		
+//		/**
+//		 * display Seperator2 panel
+//		 */
+//		JPanel panelSeperator2 = new JPanel();
+//		panelSeperator2.setBackground(new Color(153, 153, 153));
+//		panelSeperator2.setBounds(0, 426, 1095, 10);
+//		panel.add(panelSeperator2);
+//		
+//		/**
+//		 * display Seperator3 panel
+//		 */
+//		JPanel panelSeperator3 = new JPanel();
+//		panelSeperator3.setBackground(new Color(153, 153, 153));
+//		panelSeperator3.setBounds(0, 626, 1095, 10);
+//		panel.add(panelSeperator3);
 		
 		
 		
-		return panel;
+		
+		
+		return panel;		
+		
 	}
+	
 	/**
 	 * 
 	 * Desc : make alice01 panel
@@ -296,6 +347,12 @@ public class GuiMain extends JFrame {
 	private JPanel MakeAlice01Panel(){
 		JPanel panel = new JPanel();		
 		panel.setLayout(null);
+		panel.setName("panelAlice01");
+		
+		
+		JLabel l = new JLabel("Alice");
+		l.setBounds(12, 12, 445, 330);		
+		panel.add(l);
 		return panel;
 	}
 	
@@ -326,7 +383,6 @@ public class GuiMain extends JFrame {
 	}
 	
 	
-	
 	/**
 	 * 
 	 * Desc : main 
@@ -338,8 +394,4 @@ public class GuiMain extends JFrame {
 		// TODO Auto-generated method stub
 		GuiMain m = new GuiMain();		
 	}
-
-
-
-	
 }
