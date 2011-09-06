@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.MenuBar;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -11,8 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import kisti.gui.CDF.CAF_CDFJobTable;
@@ -21,7 +21,7 @@ import kisti.gui.CDF.CAF_JobSubmitionGraph;
 import kisti.gui.CDF.CAF_QueueStatus;
 import kisti.gui.CDF.CAF_WorkerNodeStatus;
 import kisti.gui.CDF.KistiCI;
-import kisti.gui.CDF.SAM_CpuMonitoring;
+import kisti.gui.CDF.SAM_MonitoringPanel;
 
 
 
@@ -47,6 +47,7 @@ public class GuiMain extends JFrame   {
 	private static int KISSMAN_HEIGHT = 768;
 	private JPanel panelTree = null;
 	private JPanel currentMainPanel, panelCDF01, panelCDF02, panelAlice01, panelAlice02, panelBelle01, panelBelle02, panelKistiCI, panelBottom;
+//	private Jpanel[] = {currentMainPanel,panelCDF01};
 	
 	private JTable tableCDFWorkernodes = null;
 	private JTable tableCDFJobTotal = null;
@@ -62,6 +63,8 @@ public class GuiMain extends JFrame   {
 	 * 
 	 */
 	public GuiMain() {		
+//		JPanel mainPanel[] = {panelCDF01, panelCDF02, panelAlice01, panelBelle01, panelKistiCI, panelBottom};
+		
 		this.setTitle("KissMan");
 		this.setSize(KISSMAN_WIDTH, KISSMAN_HEIGHT);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -79,19 +82,32 @@ public class GuiMain extends JFrame   {
 		/**
 		 * 3. CDF01 ... CDF02 .... Alice..
 		 */
-		panelCDF01 = MakeCDF01Panel();
-		//System.out.println("panelCDF01 name="+panelCDF01.getName());
-		currentMainPanel = panelCDF01;
+		panelCDF01 = MakeCDF01Panel();		
 		panelCDF01.setBackground(Color.WHITE);
-		panelCDF01.setBounds(234, 12, 1095, 676);
-		
+		panelCDF01.setBounds(234, 12, 1095, 676);		
 		panelCDF02 = MakeCDF02Panel();
 		panelCDF02.setBackground(Color.WHITE);
 		panelCDF02.setBounds(234, 12, 1095, 676);
+		panelBelle01 = MakeBelle01Panel();
+		panelBelle01.setBackground(Color.WHITE);
+		panelBelle01.setBounds(234, 12, 1095, 676);
+		panelAlice01 = MakeAlice01Panel();
+		panelAlice01.setBackground(Color.WHITE);
+		panelAlice01.setBounds(234, 12, 1095, 676);
+		
+		
 		
 		
 		//currentPanel = panelCDF01;
+		this.add(panelCDF01);
 		this.add(panelCDF02);
+		this.add(panelBelle01);
+		this.add(panelAlice01);
+		panelCDF01.setVisible(true);
+		panelCDF01.setVisible(false);
+		panelCDF02.setVisible(false);
+		panelBelle01.setVisible(false);
+		panelAlice01.setVisible(false);
 		
 		/**
 		 * 4. KISTI CI panel
@@ -107,6 +123,12 @@ public class GuiMain extends JFrame   {
 		panelBottom.setBounds(0, 700, 1350, 30);
 		this.add(panelBottom);
 		
+		
+//		for (int i = 0; i < mainPanel.length; i++) {
+//			//this.add(mainPanel[i]);
+//			System.out.println(mainPanel[i].toString());
+//			
+//		}
 		
 		
 		this.setVisible(true);		
@@ -136,21 +158,36 @@ public class GuiMain extends JFrame   {
 
 		JTree t = (JTree)e.getSource();
 		String sourceName = t.getLastSelectedPathComponent().toString();
-		System.out.println("tree:"+sourceName);
+//		System.out.println("tree:"+sourceName);
 		
-		System.out.println( "no of component="+this.getComponentCount() );
+//		System.out.println( "no of component="+this.getComponentCount() );		
+//		//System.out.println("current Panel name "+ currentMainPanel.getName() );
+		panelCDF01.setVisible(false);
+		panelCDF02.setVisible(false);
+		panelCDF01.setVisible(false);
+		panelAlice01.setVisible(false);
+//		panelAlice02.setVisible(false);
+		panelBelle01.setVisible(false);
+//		panelBelle02.setVisible(false);
 		
-		//System.out.println("current Panel name "+ currentMainPanel.getName() );
 		
 		
-		if (sourceName.equals("CDF_CAF")) {	
-			this.add(panelCDF02);			
-		} else if (sourceName.equals("CDF_SAM")) {	
-			this.add(panelCDF01);			
+		if (sourceName.equals("CDF_CAF")) {
+			panelCDF01.setVisible(true);
+			System.out.println("CDF_CAF " + sourceName);
+		} else if (sourceName.equals("CDF_SAM")) {
+			panelCDF02.setVisible(true);
+			System.out.println("CDF_SAM " + sourceName);
 		} else if (sourceName.equals("Alice")) {
-			this.add(panelAlice01);			
-		}		
-		System.out.println("nothing");
+			panelAlice01.setVisible(true);
+			System.out.println("Alice " + sourceName);
+		} else if (sourceName.equals("Belle")) {
+			panelBelle01.setVisible(true);
+			System.out.println("Belle " + sourceName);
+		} else {
+			System.out.println("else");
+		}
+		
 		repaint();
 	}
 	
@@ -300,10 +337,12 @@ public class GuiMain extends JFrame   {
 		/**
 		 * display cpu & memory panel
 		 */
-		JPanel displayCpuMon = new SAM_CpuMonitoring();
+		JPanel displayCpuMon = new SAM_MonitoringPanel();
 		//displayCpuMon.setBackground(Color.red);
 		displayCpuMon.setBounds(12, 12, 445, 500);
 		panel.add(displayCpuMon);
+//		Thread t = new Thread(displayCpuMon);
+//		t.start();
 //		
 //		/**
 //		 * display Seperator1 panel
@@ -335,6 +374,25 @@ public class GuiMain extends JFrame   {
 		
 		return panel;		
 		
+	}
+	
+	/**
+	 * 
+	 * Desc : make Belle01 panel
+	 * @Method Name : MakeAlice01Panel
+	 * @return panel
+	 *
+	 */
+	private JPanel MakeBelle01Panel(){
+		JPanel panel = new JPanel();		
+		panel.setLayout(null);
+		panel.setName("panelBelle01");
+		
+		
+		JLabel l = new JLabel("Belle");
+		l.setBounds(12, 12, 445, 330);		
+		panel.add(l);
+		return panel;
 	}
 	
 	/**
@@ -393,5 +451,12 @@ public class GuiMain extends JFrame   {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		GuiMain m = new GuiMain();		
+		m.addWindowListener(
+				new WindowAdapter() {
+					public void windowClosing(WindowEvent e){System.exit(0);}
+					public void windowDeiconified(WindowEvent e){ System.out.println("windowDeiconified");}
+					  public void windowIconified(WindowEvent e) {System.out.println("windowIconified"); }
+				}
+		);
 	}
 }
