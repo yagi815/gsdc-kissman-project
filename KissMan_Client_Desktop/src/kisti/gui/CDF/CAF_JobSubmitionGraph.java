@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import kisti.module.database.KissManDatabase;
@@ -44,7 +45,7 @@ public class CAF_JobSubmitionGraph extends JPanel{
 		KissManDatabase db = new KissManDatabase();
 		Object obj = db.requestDataToDataBase("jobsubmition");
 		nJob = (int[]) obj;
-				
+
 		this.setSize(WIDTH, HEIGHT	);
 		this.setBackground(new Color(147,77,134)); //for test		
 		this.repaint();

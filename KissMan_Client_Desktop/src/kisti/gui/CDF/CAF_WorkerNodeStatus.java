@@ -3,9 +3,11 @@ package kisti.gui.CDF;
 import java.awt.Color;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import kisti.server.connectToServer;
 
@@ -28,31 +30,6 @@ import kisti.server.connectToServer;
  */
 public class CAF_WorkerNodeStatus extends JPanel{
 
-//134.75.123.117 : wn1017	
-	/* =======================================================================
-	 for sv in $(seq -f wn10%02g.sdfarm.kr 17 38) $(seq -f wn20%02g.sdfarm.kr \ 
-	 01 12) $(seq -f wn20%02g.sdfarm.kr 25 31);   do echo "### $sv ###";  \
-	 ssh $sv 'df -h /tmp' ; done
-	 
-	 
-	 
-result : 
-	 
-### wn2029.sdfarm.kr ###
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/mapper/rootvg-tmp
-                      2.0G  153M  1.7G   9% /tmp
-### wn2030.sdfarm.kr ###
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/mapper/rootvg-tmp
-                      2.0G  153M  1.7G   9% /tmp
-### wn2031.sdfarm.kr ###
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/mapper/rootvg-tmp
-                      2.0G  153M  1.7G   9% /tmp
-	 
-	 
-	 =======================================================================*/
 	
 	
     private JTable table;
@@ -70,22 +47,41 @@ Filesystem            Size  Used Avail Use% Mounted on
     	
     	
             // TODO Auto-generated constructor stub
-            String header[] = {"Name","Power","running","Server","Etc"};
-            String cells[][] ={
-                            {"WN1017","ON","Running","Blade",".."},                         
-                            {"WN1018","ON","Running","Blade",".."},
-                            {"WN1019","ON","Null","Blade",".."},
-                            {"WN1020","ON","Running","Blade",".."},
-                            {"WN2001","OFF","Null","1U Server",".."},
-                            {"WN2002","ON","Running","1U Server",".."},
-                            {"WN2003","ON","Running","1U Server",".."},
-                            {"WN2004","OFF","Null","1U Server",".."}
-            };
+            String header[] = {"Name","state","np","properties","status"};
+            String cells[][] = (String[][])obj;
 
-            table = new JTable(cells,header);
-//            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            table = new JTable(cells,header);            
             table.setBackground(new Color(255, 255, 204));
 
+            
+            
+            /**
+             * 셀 간격 조정             * 
+             */
+    		DefaultTableCellRenderer celAlignCenter = new DefaultTableCellRenderer();
+    		celAlignCenter.setHorizontalAlignment(JLabel.CENTER);
+    		DefaultTableCellRenderer celAlignRight = new DefaultTableCellRenderer();
+    		celAlignRight.setHorizontalAlignment(JLabel.RIGHT);
+            
+            
+            /**
+             * 각 셀의 넓이와 정렬
+             */
+            table.getColumn("Name").setPreferredWidth(7);
+            table.getColumn("Name").setCellRenderer(celAlignCenter);
+            table.getColumn("state").setPreferredWidth(5);
+            table.getColumn("state").setCellRenderer(celAlignCenter);
+            table.getColumn("np").setPreferredWidth(5);
+            table.getColumn("np").setCellRenderer(celAlignCenter);
+            table.getColumn("properties").setPreferredWidth(10);
+            table.getColumn("properties").setCellRenderer(celAlignCenter);
+//            table.getColumn("ntype").setPreferredWidth(10);
+//            table.getColumn("ntype").setCellRenderer(celAlignCenter);
+//            table.getColumn("Name").setPreferredWidth(10);
+//            table.getColumn("Name").setCellRenderer(celAlignCenter);
+            
+            
+            
             this.setBackground(Color.WHITE);
             this.setLayout(null);
             JScrollPane jspWN = new JScrollPane(table);

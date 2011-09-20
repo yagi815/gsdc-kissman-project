@@ -310,7 +310,7 @@ public class SAM_CpuMonitoring_org extends JPanel {
     }
 
     public static void main(String s[]) {
-        final CpuMonitor demo = new CpuMonitor();
+        final SAM_CpuMonitoring_org demo = new SAM_CpuMonitoring_org();
         WindowListener l = new WindowAdapter() {
             public void windowClosing(WindowEvent e) {	System.exit(0);	}
             public void windowDeiconified(WindowEvent e) { demo.surf.start(); }

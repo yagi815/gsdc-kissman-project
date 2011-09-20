@@ -21,7 +21,9 @@ import kisti.gui.CDF.CAF_JobSubmitionGraph;
 import kisti.gui.CDF.CAF_QueueStatus;
 import kisti.gui.CDF.CAF_WorkerNodeStatus;
 import kisti.gui.CDF.KistiCI;
-import kisti.gui.CDF.SAM_MonitoringPanel;
+import kisti.gui.CDF.SAM_DiskCache;
+import kisti.gui.CDF.SAM_Monitoring;
+import kisti.gui.CDF.SAM_monText;
 
 
 
@@ -56,14 +58,13 @@ public class GuiMain extends JFrame   {
 	private JTree treeRoot = null;
 
 	
-	
 	/**
 	 * 
 	 * Desc : Constructor of GuiMain.java class
 	 * 
 	 */
 	public GuiMain() {		
-//		JPanel mainPanel[] = {panelCDF01, panelCDF02, panelAlice01, panelBelle01, panelKistiCI, panelBottom};
+
 		
 		this.setTitle("KissMan");
 		this.setSize(KISSMAN_WIDTH, KISSMAN_HEIGHT);
@@ -96,15 +97,11 @@ public class GuiMain extends JFrame   {
 		panelAlice01.setBounds(234, 12, 1095, 676);
 		
 		
-		
-		
-		//currentPanel = panelCDF01;
 		this.add(panelCDF01);
 		this.add(panelCDF02);
 		this.add(panelBelle01);
 		this.add(panelAlice01);
-		panelCDF01.setVisible(true);
-		panelCDF01.setVisible(false);
+		panelCDF01.setVisible(true);		
 		panelCDF02.setVisible(false);
 		panelBelle01.setVisible(false);
 		panelAlice01.setVisible(false);
@@ -205,7 +202,8 @@ public class GuiMain extends JFrame   {
 		
 		DefaultMutableTreeNode treeTop = new DefaultMutableTreeNode("KISTI System Monitoring");
 		
-			DefaultMutableTreeNode treeCDF = new DefaultMutableTreeNode("CDF");		
+			DefaultMutableTreeNode treeCDF = new DefaultMutableTreeNode("CDF");
+			
 				DefaultMutableTreeNode treeCDF_CAF = new DefaultMutableTreeNode("CDF_CAF");
 				DefaultMutableTreeNode treeCDF_SAM = new DefaultMutableTreeNode("CDF_SAM");
 			
@@ -213,7 +211,7 @@ public class GuiMain extends JFrame   {
 			DefaultMutableTreeNode treeAlice = new DefaultMutableTreeNode("Alice");
 		
 
-		treeTop.add(treeCDF);
+		treeTop.add(treeCDF);		
 		treeCDF.add(treeCDF_CAF);
 		treeCDF.add(treeCDF_SAM);
 		
@@ -225,7 +223,7 @@ public class GuiMain extends JFrame   {
 
 		jtreeMain.addMouseListener(
 				new MouseAdapter() {
-					public void mouseReleased (MouseEvent e){		
+					public void mouseClicked (MouseEvent e){		
 						changeMainPanel(e);						
 					}
 				}
@@ -306,7 +304,7 @@ public class GuiMain extends JFrame   {
 				
 		return panel;
 	}
-	
+
 	
 	/**
 	 * 
@@ -320,60 +318,40 @@ public class GuiMain extends JFrame   {
 		panel.setBackground(Color.gray);
 		panel.setLayout(null);
 		panel.setName("panelCDF02");
-//		
-//		JPanel p = new JPanel();
-//		p.setSize(100, 100);
-//		p.setBounds(12, 12, 100,100);
-//		p.setBackground(Color.red);
-//		panel.add(p);
 
-//		/**
-//		 * display SAM Station
-//		 */
-//		JLabel label = new JLabel("SAM Station");
-//		label.setBounds(12,12, 100, 30);
-//		panel.add(label);
-//		
 		/**
-		 * display cpu & memory panel
-		 */
-		JPanel displayCpuMon = new SAM_MonitoringPanel();
+		 * display SAM mon
+		 */		
+		JPanel displayCpuMon = new SAM_Monitoring();
 		//displayCpuMon.setBackground(Color.red);
-		displayCpuMon.setBounds(12, 12, 445, 500);
-		panel.add(displayCpuMon);
-//		Thread t = new Thread(displayCpuMon);
-//		t.start();
-//		
-//		/**
-//		 * display Seperator1 panel
-//		 */
-//		JPanel panelSeperator1 = new JPanel();
-//		panelSeperator1.setBackground(new Color(153, 153, 153));
-//		panelSeperator1.setBounds(0, 226, 1095, 10);
-//		panel.add(panelSeperator1);
+		displayCpuMon.setBounds(12, 12, 500, 400);
+		panel.add(displayCpuMon);		
 		
-//		/**
-//		 * display Seperator2 panel
-//		 */
-//		JPanel panelSeperator2 = new JPanel();
-//		panelSeperator2.setBackground(new Color(153, 153, 153));
-//		panelSeperator2.setBounds(0, 426, 1095, 10);
-//		panel.add(panelSeperator2);
-//		
-//		/**
-//		 * display Seperator3 panel
-//		 */
-//		JPanel panelSeperator3 = new JPanel();
-//		panelSeperator3.setBackground(new Color(153, 153, 153));
-//		panelSeperator3.setBounds(0, 626, 1095, 10);
-//		panel.add(panelSeperator3);
+		/**
+		 * display SAM mon text
+		 */		
+		JPanel cpuMon = new SAM_monText();
+		cpuMon.setBounds(550,50,500,350);		
+		panel.add(cpuMon);
+		
+		/**
+		 * display Seperator panel
+		 */
+		JPanel panelSeperator = new JPanel();
+		panelSeperator.setBackground(new Color(153, 153, 153));
+		panelSeperator.setBounds(0, 426, 1095, 10);
+		panel.add(panelSeperator);
 		
 		
-		
+		/**
+		 * display SAM cache
+		 */		
+		JPanel samCache = new SAM_DiskCache();
+		samCache.setBounds(12, 460 ,569, 206);
+		panel.add(samCache);
 		
 		
 		return panel;		
-		
 	}
 	
 	/**

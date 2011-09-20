@@ -1,12 +1,17 @@
 package kisti.gui.CDF;
 import java.awt.Color;
-import java.util.Random;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import kisti.server.connectToServer;
+
 public class CAF_QueueStatus extends JPanel implements Runnable{
 	JTextArea ta;
+	connectToServer server ;
+	
+	
 	public CAF_QueueStatus() {
 		// TODO Auto-generated constructor stub
 		
@@ -19,34 +24,28 @@ public class CAF_QueueStatus extends JPanel implements Runnable{
 		Thread t = new Thread(this);
 		t.start();
 		
+		server = new connectToServer(); 
+		
 		s1 = getDataFromServer();
 		ta.setText(s1);
 		
 	}
 
 	public void run() {
-		while (true) {
+		while (true) {			
 			String s1 = getDataFromServer();
-			ta.setText(s1);
-//			System.out.println("QueueStatus");
+			ta.setText(s1);			
 			try {
 				Thread.sleep(1000);
 			} catch (Exception e) {}
 		}
 	}
 	String getDataFromServer()
-	{
-		String data = null;
-		//String data = getDataFromServer();
-		
-		
-		String s1="Queue              Max   Tot   Ena   Str   Que   Run   Hld   Wat   Trn   Ext T \n"
-				+ "----------------   ---   ---   ---   ---   ---   ---   ---   ---   ---   ---		- \n"
-				+ "belle                0     0   yes   yes     0     0     0     0     0     0		E \n"
-				+ "osgcdf               0   235   yes   yes     0   234     0     0     0     1 	E \n";
-		
-		
-		return s1;
+	{		
+		Object obj = server.requestDataToServer("QueueStatus");
+		String str = (String)obj;
+//		System.out.println("getDataFromServer");
+		return str;
 	}
 	
 
@@ -62,7 +61,7 @@ public class CAF_QueueStatus extends JPanel implements Runnable{
 		   JFrame f = new JFrame();
 		   CAF_QueueStatus w = new CAF_QueueStatus();
            f.add(w);
-           f.setSize(600,284);
+           f.setSize(600, 284);
            f.setVisible(true);
 	}
 }

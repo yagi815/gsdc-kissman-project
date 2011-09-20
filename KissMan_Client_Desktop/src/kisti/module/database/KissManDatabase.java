@@ -141,7 +141,7 @@ public class KissManDatabase {
 			while (rs.next()) {
 				String[] row = new String[8]; 
 				row[0] = rs.getString(1);
-				row[1] = rs.getString(2)+rs.getString(3);
+				row[1] = rs.getString(2)+" ~ "+rs.getString(3);
 				row[2] = rs.getString(4);
 				row[3] = rs.getString(5);
 				row[4] = rs.getString(6);
