@@ -35,7 +35,7 @@ import kisti.module.database.KissManDatabase;
  */
 
 
-public class SAM_Monitoring extends JPanel implements Runnable{
+public class SAM_Monitoring_old extends JPanel implements Runnable{
 	private int nJob[]={};
 	private static int WIDTH = 1095;
 	private static int HEIGHT = 676;
@@ -53,7 +53,7 @@ public class SAM_Monitoring extends JPanel implements Runnable{
 	 * Desc :
 	 * @Method Name : JobSubmitionGraph
 	 */	
-	public SAM_Monitoring() {
+	public SAM_Monitoring_old() {
 		// TODO Auto-generated constructor stub
 
 		this.setSize(WIDTH, HEIGHT	);
@@ -217,7 +217,7 @@ public class SAM_Monitoring extends JPanel implements Runnable{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		JFrame f = new JFrame();
-		SAM_Monitoring panel = new SAM_Monitoring();		
+		SAM_Monitoring_old panel = new SAM_Monitoring_old();		
 		panel.setBackground(Color.YELLOW);
 		f.setLayout(null);
 		f.add(panel);

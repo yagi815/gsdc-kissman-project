@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Vector;
 
+import kisti.module.log.ErrorPopup;
+
 public class KissManDatabase {
 
 	private static final String ipAddressForDatabase  = "150.183.234.168";
@@ -40,6 +42,8 @@ public class KissManDatabase {
 			// TODO: handle exception
 			System.out.println("[OpenDatabase()] "+e.toString());
 			e.printStackTrace();
+			ErrorPopup popup = new ErrorPopup("Can't open database");
+			System.exit(-1);
 		}	
 		return stmt;
 	}

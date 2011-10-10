@@ -1,6 +1,8 @@
 package kisti.gui.CDF;
 
 import java.awt.Color;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -100,6 +102,14 @@ public class CAF_WorkerNodeStatus extends JPanel{
             f.add(w);
             f.setSize(650,400);
             f.setVisible(true);
+            
+            f.addWindowListener(
+       				new WindowAdapter() {
+       					public void windowClosing(WindowEvent e){System.exit(0);}
+       					public void windowDeiconified(WindowEvent e){ System.out.println("windowDeiconified");}
+       					  public void windowIconified(WindowEvent e) {System.out.println("windowIconified"); }
+       				}
+       		);
             
     }
 }

@@ -3,14 +3,16 @@ package kisti.server;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.CharBuffer;
+import java.util.StringTokenizer;
 
-import javax.print.attribute.standard.Severity;
+import kisti.module.log.ErrorPopup;
 
 /**
  * <pre>
@@ -30,16 +32,17 @@ import javax.print.attribute.standard.Severity;
 public class connectToServer {
 
 	// 134.75.123.33 ce
-	private static final String IPADDR_DANIEL_SERVER	= "150.183.234.168";
+	private static final String IPADDR_DANIEL_SERVER = "150.183.234.168";
 	private static final String IPADDR_SAM = "sam0.sdfarm.kr";
 	private static final String IPADDR_CE03 = "ce03.sdfarm.kr";
 	private static final int PORT = 9734;
 
 	private Socket socket;
 	private BufferedInputStream bis;
-	private BufferedOutputStream bos;
+	// private BufferedOutputStream bos;
 	private InputStreamReader isr;
 	private BufferedReader reader;
+	private DataOutputStream dos;
 
 	/**
 	 * 
@@ -52,16 +55,18 @@ public class connectToServer {
 	public Object requestDataToServer(String serviceName) {
 		Object obj = null;
 		if (serviceName.equals("WorkerNodeStatus")) {
-			obj = getWorkerNodeStatus();
+			obj = getCAFWorkerNodeStatus();
 		} else if (serviceName.equals("QueueStatus")) {
-			obj = getQueueStatus();
-		}else if(serviceName.equals("samInfo")){
+			obj = getCAFQueueStatus();
+		} else if (serviceName.equals("samInfo")) {
 			obj = getSamInfo();
-		}else if(serviceName.equals("SAM_monText")){
-			obj = getDstat();
-		}else if(serviceName.equals("test"))		{
-			test();			
-		}else{
+		} else if (serviceName.equals("getDstat")) {
+			obj = getSamDstat();
+		} else if (serviceName.equals("samDisk")) {
+			obj = getSamDisk();
+		} else if (serviceName.equals("test")) {
+			test();
+		} else {
 			System.out.println("잘못된 요청");
 		}
 
@@ -78,16 +83,22 @@ public class connectToServer {
 	public void openServer(String IPADDR) {
 		try {
 			socket = new Socket(IPADDR, PORT);
-			bos = new BufferedOutputStream(socket.getOutputStream());
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			// bos = new BufferedOutputStream(socket.getOutputStream());
+			dos = new DataOutputStream(socket.getOutputStream());
+			dos.flush();
+			reader = new BufferedReader(new InputStreamReader(
+					socket.getInputStream()));
 			System.out.println("open server");
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.toString());
+//			JOptionPane.showMessageDialog(this, "Message");
+			ErrorPopup popup = new ErrorPopup("Can't open server");
+			System.exit(-1);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * Desc :
@@ -97,7 +108,8 @@ public class connectToServer {
 	 */
 	public void closeServer() {
 		try {
-			bos.close();
+			dos.close();
+			reader.close();
 			socket.close();
 			System.out.println("Close server");
 		} catch (Exception e) {
@@ -106,12 +118,13 @@ public class connectToServer {
 		}
 	}
 
-	
 	public void test() {
 		try {
 			Socket socket1 = new Socket(IPADDR_DANIEL_SERVER, PORT);
-			BufferedInputStream bis1 = new BufferedInputStream( socket1.getInputStream());
-			BufferedOutputStream bos1 = new BufferedOutputStream(socket1.getOutputStream());
+			BufferedInputStream bis1 = new BufferedInputStream(
+					socket1.getInputStream());
+			BufferedOutputStream bos1 = new BufferedOutputStream(
+					socket1.getOutputStream());
 			InputStreamReader isr1 = new InputStreamReader(bis1, "US-ASCII");
 
 			System.out.println("\nopen server");
@@ -122,78 +135,71 @@ public class connectToServer {
 			n |= 1;
 
 			String s = Integer.toString(n);
-			
+
 			byte[] b = s.getBytes();
 
 			String cmdString = "df -h";
 			byte[] cmd = cmdString.getBytes();
-			
+
 			bos1.write(b, 0, b.length);
-			bos1.write(cmd,0, cmd.length);
-			
-			
+			bos1.write(cmd, 0, cmd.length);
+
 			bos1.flush();
-			
 
 			String str1;// = reader.readLine();
 			char[] cbuf = new char[1024];
 
-			
 			while (isr1.read(cbuf, 0, 1024) != -1) {
 				String str = new String(cbuf);
 				str = str.trim();
-				
-				System.out.println("str: "+str);
+
+				System.out.println("str: " + str);
 
 				for (int i = 0; i < 1024; i++)
 					cbuf[i] = '\0';
 			}
 
-			
 			System.out.println("close server");
 			bis1.close();
 			bos1.close();
 			isr1.close();
 			socket1.close();
-			
-			
-			
-		} catch (Exception e) {			
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.toString());
 		}
 	}
-	
- 
+
 	/**
 	 * 
 	 * Desc :
+	 * 
 	 * @Method Name : getSamInfo
 	 * @return
-	 *
+	 * 
 	 */
 	public Object getSamInfo() {
-		
+
 		Object obj = null;
-		
-		try {			
+
+		try {
 			openServer(IPADDR_SAM);
 
 			int n = 16;
 			n <<= 8;
 			n |= 1;
 			String s = Integer.toString(n);
-			
+
 			byte[] b = s.getBytes();
-			String cmdString = "ps -ef";
+			String cmdString = "dstat 1 10\0";
 			System.out.println(cmdString);
 			byte[] cmd = cmdString.getBytes();
-			
-			bos.write(b, 0, b.length);			
-			bos.write(cmd,0, cmd.length);
-			
-						
-			bos.flush();
+
+			dos.write(b, 0, b.length);
+			dos.write(cmd, 0, cmd.length);
+
+			// dos.flush();
 
 			char[] cbuf = new char[1024];
 
@@ -201,8 +207,8 @@ public class connectToServer {
 			while (reader.read(cbuf, 0, 1024) != -1) {
 				String str = new String(cbuf);
 				str = str.trim();
-				
-				//System.out.println("str: "+str);
+
+				// System.out.println("str: "+str);
 				resultData += str;
 				obj = resultData;
 
@@ -210,75 +216,71 @@ public class connectToServer {
 					cbuf[i] = '\0';
 			}
 
-		closeServer();
-			
-			
-			
-		} catch (Exception e) {			
+			closeServer();
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.toString());
 		}
-		
+
 		return obj;
 	}
-	
+
 	/**
 	 * 
 	 * Desc :
+	 * 
 	 * @Method Name : getQueueStatus
 	 * @return
-	 *
+	 * 
 	 */
-	public Object getQueueStatus() {
-		
+	public Object getCAFQueueStatus() {
+
 		Object obj = null;
-		
-		try {			
+
+		try {
 			openServer(IPADDR_CE03);
 
 			int n = 16;
 			n <<= 8;
 			n |= 1;
 			String s = Integer.toString(n);
-			
+
 			byte[] b = s.getBytes();
-			String cmdString = "qstat -Qa";
+			String cmdString = "qstat -Qa\0";
 			System.out.println(cmdString);
-			byte[] cmd = cmdString.getBytes();
-			
-			bos.write(b, 0, b.length);			
-			bos.write(cmd,0, cmd.length);
-			
-						
-			bos.flush();
+			// byte[] cmd = cmdString.getBytes();
+
+			dos.write(b, 0, b.length);
+			dos.write(cmdString.getBytes(), 0, cmdString.getBytes().length);
+
+			// dos.flush();
 
 			char[] cbuf = new char[1024];
-
 			String resultData = null;
 			while (reader.read(cbuf, 0, 1024) != -1) {
 				String str = new String(cbuf);
 				str = str.trim();
-				
-				//System.out.println("str: "+str);
+				str += "\n";
+				System.out.println("str: " + str);
 				resultData += str;
+
 				obj = resultData;
 
 				for (int i = 0; i < 1024; i++)
 					cbuf[i] = '\0';
 			}
 
-		closeServer();
-			
-			
-			
-		} catch (Exception e) {			
+			closeServer();
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.toString());
 		}
-		
+
 		return obj;
 	}
-	
+
 	/**
 	 * 
 	 * Desc :
@@ -287,7 +289,7 @@ public class connectToServer {
 	 * @return
 	 * 
 	 */
-	public Object getWorkerNodeStatus() {
+	public Object getCAFWorkerNodeStatus() {
 		Object obj = null;
 
 		try {
@@ -299,17 +301,17 @@ public class connectToServer {
 			String s = Integer.toString(n);
 
 			byte[] b = s.getBytes();
-			String cmdString = "qstat -Qa";
+			String cmdString = "pbsnodes -x\0";
 			System.out.println(cmdString);
-//			byte[] cmd = cmdString.getBytes();
+			// byte[] cmd = cmdString.getBytes();
 
-			bos.write(b, 0, b.length);
-			bos.write(cmdString.getBytes(), 0,cmdString.getBytes().length );
-			bos.flush();
+			dos.write(b, 0, b.length);
+			dos.write(cmdString.getBytes(), 0, cmdString.getBytes().length);
+			// dos.flush();
 
 			char[] cbuf = new char[1024];
-			String resultData = null;
-			
+			String resultData = "";
+
 			while (reader.read(cbuf, 0, 1024) != -1) {
 				String str = new String(cbuf);
 				str = str.trim();
@@ -318,9 +320,50 @@ public class connectToServer {
 				for (int i = 0; i < 1024; i++)
 					cbuf[i] = '\0';
 			}
+
+//			File xmlFile = new File("pbsnodes1.xml");
+//			 BufferedOutputStream bos = new BufferedOutputStream(new
+//			 FileOutputStream(xmlFile));
+//			 bos.write(resultData.getBytes(),0 ,
+//			 resultData.getBytes().length);
+//			 bos.close();
+//			
+//			 BufferedWriter out = new BufferedWriter(new FileWriter(xmlFile,
+//			 true));
+//			 out.write(resultData);
+//			 out.close();
+//
+//			FileWriter fw = new FileWriter("pbsnodes4.xml");	
+//			resultData.replace("\000","");
+//			resultData.replace("\0x0","");
+//			fw.write(resultData);
+//			fw.close();
 			
-			xmlParser  parser = new xmlParser();
-			obj = parser.parseString(resultData);
+			File xmlFile = new File("pbsnodes4.xml");
+			
+			if(xmlFile.exists()){
+				xmlFile.delete();
+			}
+			xmlFile.createNewFile();
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(xmlFile.getPath()),"UTF-8"));
+			resultData.replace("\000","");
+			resultData.replace("\0x0","");
+			resultData.replace("\r","");
+			resultData.replace("\n","");
+			
+			System.out.println(resultData);
+		
+			bw.write(resultData					);			
+			bw.flush();
+			bw.close();
+			
+			
+			
+			
+			xmlParser parser = new xmlParser();
+			obj = parser.parseString("pbsnode_org.xml");
+//			obj = parser.parseString("pbsnodes4.xml");
 
 			closeServer();
 
@@ -332,7 +375,92 @@ public class connectToServer {
 		return obj;
 	}
 
-	
+	/**
+	 * 
+	 * Desc :
+	 * 
+	 * @Method Name : getSamDstat
+	 * @return
+	 * 
+	 */
+	public Object getSamDisk() {
+		Object obj = null;
+		SAMDiskData data = new SAMDiskData();
+
+		try {
+			openServer(IPADDR_SAM);
+			// bos.flush();
+			int n = 16;
+			n <<= 8;
+			n |= 1;
+			String s = Integer.toString(n);
+
+			byte[] b = s.getBytes();
+			// df /cdf01 | sed '1d' | awk '{print $2 " "$3}'
+			String cmdString = "df  /cdf01 | sed '1d' | awk '{print $2\" \" $3\" \" $5}'; \\"
+					+ "df  /cdf02 | sed '1d' | awk '{print $2\" \" $3\" \" $5}'; \\"
+					+ "df  /home-osg/CDF | sed '1,2d' | awk '{print $1\" \" $2\" \" $4}'; \0";
+			char[] cbuf = new char[1024];
+			String resultData = null;
+			String str ="";
+
+			System.out.println(cmdString);
+			dos.write(b, 0, b.length);
+			dos.write(cmdString.getBytes(), 0, cmdString.getBytes().length);
+			// dos.flush();
+
+			while (reader.read(cbuf, 0, 1024) != -1) {
+				String temp = new String(cbuf);
+				temp = temp.trim();
+				temp += " ";
+
+				System.out.println(temp);
+				str += temp;
+
+//				for (int j = 0; j < 1024; j++)
+//					cbuf[j] = '\0';
+			}
+
+			System.out.println("--" + str);
+
+			StringTokenizer st = new StringTokenizer(str, " ");
+
+
+			data.cdf01_size = Double.parseDouble(st.nextToken());
+			data.cdf01_used = Double.parseDouble(st.nextToken());
+			data.cdf01_use_percentage = st.nextToken();
+
+			data.cdf02_size = Double.parseDouble(st.nextToken());
+			data.cdf02_used = Double.parseDouble(st.nextToken());
+			data.cdf02_use_percentage = st.nextToken();
+
+			data.general_disk_size = Double.parseDouble(st.nextToken());
+			data.general_disk_used = Double.parseDouble(st.nextToken());
+			data.general_disk_use_percentage = st.nextToken();
+			
+			
+
+
+//			System.out.println(data.cdf01_size);
+//			System.out.println(data.cdf01_used);
+//			System.out.println(data.cdf02_size);
+//			System.out.println(data.cdf02_used);
+//			System.out.println(data.sam_size);
+//			System.out.println(data.sam_used);
+//			
+//			
+
+			closeServer();
+			obj = data;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println(e.toString());
+		}
+
+		return data;
+	}
+
 	/**
 	 * 
 	 * Desc :
@@ -341,48 +469,45 @@ public class connectToServer {
 	 * @return
 	 * 
 	 */
-	public Object getDstat() {
+	public Object getSamDstat() {
 		Object obj = null;
 
 		try {
 			openServer(IPADDR_SAM);
-
+			// bos.flush();
 			int n = 16;
 			n <<= 8;
 			n |= 1;
 			String s = Integer.toString(n);
 
 			byte[] b = s.getBytes();
-			String cmdString = "dstat";
+			String cmdString = "dstat 1 1 | sed '1,3d'\0";
 			System.out.println(cmdString);
 
-
-			bos.write(b, 0, b.length);
-			bos.write(cmdString.getBytes(), 0,cmdString.getBytes().length );
-			bos.flush();
+			dos.write(b, 0, b.length);
+			dos.write(cmdString.getBytes(), 0, cmdString.getBytes().length);
+			// dos.flush();
 
 			char[] cbuf = new char[1024];
-			String resultData = null;
-			
-			int c = 0;
+			String resultData = "";
+
 			while (reader.read(cbuf, 0, 1024) != -1) {
+
 				String str = new String(cbuf);
 				str = str.trim();
+				str += "\n";
+
 				resultData += str;
+
+				System.out.println("str:" + str);
 
 				for (int i = 0; i < 1024; i++)
 					cbuf[i] = '\0';
-				
-				
-				if(c >10){
-					closeServer();
-				}
-				c++;
+
 			}
-			
-			
+
 			closeServer();
-			
+			obj = resultData;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -391,6 +516,7 @@ public class connectToServer {
 
 		return obj;
 	}
+
 	/**
 	 * Desc :
 	 * 
@@ -400,11 +526,12 @@ public class connectToServer {
 	 */
 	public static void main(String[] argv) {
 		connectToServer c = new connectToServer();
-//		c.requestDataToServer("WorkerNodeStatus");
-//		c.requestDataToServer("QueueStatus");
-//		c.requestDataToServer("samInfo");
-		c.requestDataToServer("test");
-		
-		
+		// c.requestDataToServer("WorkerNodeStatus");
+		// c.requestDataToServer("QueueStatus");
+		// c.requestDataToServer("samInfo");
+		// c.requestDataToServer("getDstat");
+		c.requestDataToServer("samDisk");
+		// c.requestDataToServer("test");
+
 	}
 }

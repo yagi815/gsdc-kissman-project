@@ -21,9 +21,10 @@ import kisti.gui.CDF.CAF_JobSubmitionGraph;
 import kisti.gui.CDF.CAF_QueueStatus;
 import kisti.gui.CDF.CAF_WorkerNodeStatus;
 import kisti.gui.CDF.KistiCI;
-import kisti.gui.CDF.SAM_DiskCache;
-import kisti.gui.CDF.SAM_Monitoring;
-import kisti.gui.CDF.SAM_monText;
+import kisti.gui.CDF.SAM_Disk;
+import kisti.gui.CDF.SAM_Dstat;
+import kisti.gui.CDF.SAM_Dstat_head;
+import kisti.gui.CDF.SAM_Monitoring_old;
 
 
 
@@ -83,16 +84,16 @@ public class GuiMain extends JFrame   {
 		/**
 		 * 3. CDF01 ... CDF02 .... Alice..
 		 */
-		panelCDF01 = MakeCDF01Panel();		
+		panelCDF01 = makeCDFPanel01();		
 		panelCDF01.setBackground(Color.WHITE);
 		panelCDF01.setBounds(234, 12, 1095, 676);		
-		panelCDF02 = MakeCDF02Panel();
+		panelCDF02 = makeCDFPanel02();
 		panelCDF02.setBackground(Color.WHITE);
 		panelCDF02.setBounds(234, 12, 1095, 676);
-		panelBelle01 = MakeBelle01Panel();
+		panelBelle01 = makeBellePanel01();
 		panelBelle01.setBackground(Color.WHITE);
 		panelBelle01.setBounds(234, 12, 1095, 676);
-		panelAlice01 = MakeAlice01Panel();
+		panelAlice01 = makeAlicePanel01();
 		panelAlice01.setBackground(Color.WHITE);
 		panelAlice01.setBounds(234, 12, 1095, 676);
 		
@@ -240,7 +241,7 @@ public class GuiMain extends JFrame   {
 	 * @return panel
 	 *
 	 */
-	private JPanel MakeCDF01Panel(){
+	private JPanel makeCDFPanel01(){
 		JPanel panel = new JPanel();		
 		panel.setLayout(null);
 		panel.setName("panelCDF01");
@@ -313,7 +314,7 @@ public class GuiMain extends JFrame   {
 	 * @return panel
 	 *
 	 */
-	private JPanel MakeCDF02Panel(){
+	private JPanel makeCDFPanel02(){
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.gray);
 		panel.setLayout(null);
@@ -322,17 +323,26 @@ public class GuiMain extends JFrame   {
 		/**
 		 * display SAM mon
 		 */		
-		JPanel displayCpuMon = new SAM_Monitoring();
+		JPanel displayCpuMon = new SAM_Monitoring_old();
 		//displayCpuMon.setBackground(Color.red);
 		displayCpuMon.setBounds(12, 12, 500, 400);
 		panel.add(displayCpuMon);		
 		
+		
 		/**
-		 * display SAM mon text
+		 *dispaly SAM Dstat_header 
+		 */
+		JPanel sam_dstat_header = new SAM_Dstat_head();
+		sam_dstat_header.setBounds(550,50,500,50);		
+		panel.add(sam_dstat_header);
+		/**
+		 * display SAM Dstat
 		 */		
-		JPanel cpuMon = new SAM_monText();
-		cpuMon.setBounds(550,50,500,350);		
-		panel.add(cpuMon);
+		
+		JPanel sam_dstat = new SAM_Dstat();
+//		sam_dstat.setBackground(Color.RED);
+		sam_dstat.setBounds(550,100,500,300);		
+		panel.add(sam_dstat);
 		
 		/**
 		 * display Seperator panel
@@ -346,9 +356,11 @@ public class GuiMain extends JFrame   {
 		/**
 		 * display SAM cache
 		 */		
-		JPanel samCache = new SAM_DiskCache();
-		samCache.setBounds(12, 460 ,569, 206);
-		panel.add(samCache);
+		JPanel samdisk = new SAM_Disk();
+//		samdisk.setBackground(Color.RED);
+		samdisk.setBounds(12, 460 ,569+300, 206);
+
+		panel.add(samdisk);
 		
 		
 		return panel;		
@@ -361,7 +373,7 @@ public class GuiMain extends JFrame   {
 	 * @return panel
 	 *
 	 */
-	private JPanel MakeBelle01Panel(){
+	private JPanel makeBellePanel01(){
 		JPanel panel = new JPanel();		
 		panel.setLayout(null);
 		panel.setName("panelBelle01");
@@ -380,7 +392,7 @@ public class GuiMain extends JFrame   {
 	 * @return panel
 	 *
 	 */
-	private JPanel MakeAlice01Panel(){
+	private JPanel makeAlicePanel01(){
 		JPanel panel = new JPanel();		
 		panel.setLayout(null);
 		panel.setName("panelAlice01");
@@ -433,7 +445,7 @@ public class GuiMain extends JFrame   {
 				new WindowAdapter() {
 					public void windowClosing(WindowEvent e){System.exit(0);}
 					public void windowDeiconified(WindowEvent e){ System.out.println("windowDeiconified");}
-					  public void windowIconified(WindowEvent e) {System.out.println("windowIconified"); }
+					  public void windowIconified(WindowEvent e){ System.out.println("windowIconified"); }
 				}
 		);
 	}

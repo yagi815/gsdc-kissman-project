@@ -21,18 +21,19 @@ public class CAF_QueueStatus extends JPanel implements Runnable{
 		String s1;
 		this.add(ta);
 		
-		Thread t = new Thread(this);
-		t.start();
 		
 		server = new connectToServer(); 
 		
 		s1 = getDataFromServer();
 		ta.setText(s1);
 		
+		Thread t = new Thread(this);
+		t.start();		
 	}
 
 	public void run() {
-		while (true) {			
+		while (true) {
+//			System.out.println("caf_queuestatus");
 			String s1 = getDataFromServer();
 			ta.setText(s1);			
 			try {
@@ -48,7 +49,6 @@ public class CAF_QueueStatus extends JPanel implements Runnable{
 		return str;
 	}
 	
-
 
 	/**
 	 * Desc :
