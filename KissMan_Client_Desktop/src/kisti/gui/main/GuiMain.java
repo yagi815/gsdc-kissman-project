@@ -24,7 +24,7 @@ import kisti.gui.CDF.KistiCI;
 import kisti.gui.CDF.SAM_Disk;
 import kisti.gui.CDF.SAM_Dstat;
 import kisti.gui.CDF.SAM_Dstat_head;
-import kisti.gui.CDF.SAM_Monitoring_old;
+import kisti.gui.CDF.SAM_Info;
 
 
 
@@ -323,7 +323,7 @@ public class GuiMain extends JFrame   {
 		/**
 		 * display SAM mon
 		 */		
-		JPanel displayCpuMon = new SAM_Monitoring_old();
+		JPanel displayCpuMon = new SAM_Info();
 		//displayCpuMon.setBackground(Color.red);
 		displayCpuMon.setBounds(12, 12, 500, 400);
 		panel.add(displayCpuMon);		

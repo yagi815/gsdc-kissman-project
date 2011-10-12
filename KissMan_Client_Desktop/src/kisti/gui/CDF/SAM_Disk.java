@@ -46,34 +46,18 @@ public class SAM_Disk extends JPanel implements Runnable{
 		this.setSize(WIDTH, HEIGHT	);
 //		this.setBackground(Color.RED); //for test
 
-
-		taDstat = new JTextArea();
-		taDstat.setBounds(400, 50, 300, 400);		
-		this.add(taDstat);
+//
+//		taDstat = new JTextArea();
+//		taDstat.setBounds(400, 50, 300, 400);		
+//		this.add(taDstat);
 
 		server = new connectToServer();
 		samdiskData = new SAMDiskData();
 
 		Thread t = new Thread(this);
 		t.start();
-	}
+	}	
 	
-	public Object getDataFromServer(){
-//		server = new connectToServer();
-//		Object obj = db.requestDataToDataBase("samDisk");
-		return null;
-	}
-	
-	public void setDataOld(){
-		//getDataFromServer();		
-
-		samCDF01 = 180;
-		samCDF02 = 80;		
-		cdfGeneral = 250;
-						
-		repaint();
-	}
-
 	public void run(){
 		
 		Random r = new Random();
