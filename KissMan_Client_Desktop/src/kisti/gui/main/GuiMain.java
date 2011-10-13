@@ -23,7 +23,6 @@ import kisti.gui.CDF.CAF_WorkerNodeStatus;
 import kisti.gui.CDF.KistiCI;
 import kisti.gui.CDF.SAM_Disk;
 import kisti.gui.CDF.SAM_Dstat;
-import kisti.gui.CDF.SAM_Dstat_head;
 import kisti.gui.CDF.SAM_Info;
 
 
@@ -70,6 +69,7 @@ public class GuiMain extends JFrame   {
 		this.setTitle("KissMan");
 		this.setSize(KISSMAN_WIDTH, KISSMAN_HEIGHT);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		this.setLayout(null);
 		this.setResizable(false);
 						
@@ -332,16 +332,16 @@ public class GuiMain extends JFrame   {
 		/**
 		 *dispaly SAM Dstat_header 
 		 */
-		JPanel sam_dstat_header = new SAM_Dstat_head();
-		sam_dstat_header.setBounds(550,50,500,50);		
-		panel.add(sam_dstat_header);
+//		JPanel sam_dstat_header = new SAM_Dstat_head();
+//		sam_dstat_header.setBounds(550,50,500,50);		
+//		panel.add(sam_dstat_header);
 		/**
 		 * display SAM Dstat
 		 */		
 		
 		JPanel sam_dstat = new SAM_Dstat();
 //		sam_dstat.setBackground(Color.RED);
-		sam_dstat.setBounds(550,100,500,300);		
+		sam_dstat.setBounds(550,50,500,350);		
 		panel.add(sam_dstat);
 		
 		/**
