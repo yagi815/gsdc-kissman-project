@@ -15,15 +15,15 @@ import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import kisti.gui.CDF.CAF_CDFJobTable;
-import kisti.gui.CDF.CAF_DisplayCE03;
-import kisti.gui.CDF.CAF_JobSubmitionGraph;
-import kisti.gui.CDF.CAF_QueueStatus;
-import kisti.gui.CDF.CAF_WorkerNodeStatus;
+import kisti.gui.CDF.CAF_JobMon;
+import kisti.gui.CDF.CAF_CE03Mon;
+import kisti.gui.CDF.CAF_JobGraph;
+import kisti.gui.CDF.CAF_QueueStatusMon;
+import kisti.gui.CDF.CAF_serverMon;
 import kisti.gui.CDF.KistiCI;
-import kisti.gui.CDF.SAM_Disk;
-import kisti.gui.CDF.SAM_Dstat;
-import kisti.gui.CDF.SAM_Info;
+import kisti.gui.CDF.SAM_CacheMon;
+import kisti.gui.CDF.SAM_DstatMon;
+import kisti.gui.CDF.SAM_InfoMon;
 
 
 
@@ -53,7 +53,7 @@ public class GuiMain extends JFrame   {
 	
 	private JTable tableCDFWorkernodes = null;
 	private JTable tableCDFJobTotal = null;
-	private CAF_JobSubmitionGraph jobSubmitionGraph = null;
+	private CAF_JobGraph jobSubmitionGraph = null;
 	
 	private JTree treeRoot = null;
 
@@ -249,14 +249,14 @@ public class GuiMain extends JFrame   {
 		/** 
 		 * display CE03 activity
 		 */
-		CAF_DisplayCE03 displayCE03 = new CAF_DisplayCE03();
+		CAF_CE03Mon displayCE03 = new CAF_CE03Mon();
 		displayCE03.setBounds(12, 12, 445, 330);
 		panel.add(displayCE03);
 		
 		/**
 		 *  display ce03 queue jobs		  
 		 */	
-		JPanel panelQueueStatus = new CAF_QueueStatus();
+		JPanel panelQueueStatus = new CAF_QueueStatusMon();
 		panelQueueStatus.setBounds(12, 354, 445, 70);
 		panel.add(panelQueueStatus);
 		
@@ -270,7 +270,7 @@ public class GuiMain extends JFrame   {
 		/**
 		 * display wokernode table
 		 */
-		JPanel wnStatus = new CAF_WorkerNodeStatus();
+		JPanel wnStatus = new CAF_serverMon();
 		wnStatus.setBounds(484, 60, 599, 353);
 		panel.add(wnStatus);
 		
@@ -292,14 +292,14 @@ public class GuiMain extends JFrame   {
 		/**
 		 * display Jobtable
 		 */
-		JPanel CDFJobTable = new CAF_CDFJobTable();
+		JPanel CDFJobTable = new CAF_JobMon();
 		CDFJobTable.setBounds(12, 468, 569, 206);
 		panel.add(CDFJobTable);
 		
 		/**
 		 * display number of total jobs 
 		 */
-		CAF_JobSubmitionGraph jobSubmitionGraph = new CAF_JobSubmitionGraph();
+		CAF_JobGraph jobSubmitionGraph = new CAF_JobGraph();
 		jobSubmitionGraph.setBounds(593, 458, 490, 206);
 		panel.add(jobSubmitionGraph);		
 				
@@ -323,7 +323,7 @@ public class GuiMain extends JFrame   {
 		/**
 		 * display SAM mon
 		 */		
-		JPanel displayCpuMon = new SAM_Info();
+		JPanel displayCpuMon = new SAM_InfoMon();
 		//displayCpuMon.setBackground(Color.red);
 		displayCpuMon.setBounds(12, 12, 500, 400);
 		panel.add(displayCpuMon);		
@@ -339,7 +339,7 @@ public class GuiMain extends JFrame   {
 		 * display SAM Dstat
 		 */		
 		
-		JPanel sam_dstat = new SAM_Dstat();
+		JPanel sam_dstat = new SAM_DstatMon();
 //		sam_dstat.setBackground(Color.RED);
 		sam_dstat.setBounds(550,50,500,350);		
 		panel.add(sam_dstat);
@@ -356,7 +356,7 @@ public class GuiMain extends JFrame   {
 		/**
 		 * display SAM cache
 		 */		
-		JPanel samdisk = new SAM_Disk();
+		JPanel samdisk = new SAM_CacheMon();
 //		samdisk.setBackground(Color.RED);
 		samdisk.setBounds(12, 460 ,569+300, 206);
 

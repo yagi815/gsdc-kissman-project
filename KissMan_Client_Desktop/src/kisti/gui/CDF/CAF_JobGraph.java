@@ -27,7 +27,7 @@ import kisti.module.database.KissManDatabase;
  */
 
 
-public class CAF_JobSubmitionGraph extends JPanel{
+public class CAF_JobGraph extends JPanel{
 
 	private int nJob[];
 	private static int WIDTH = 460;
@@ -41,7 +41,7 @@ public class CAF_JobSubmitionGraph extends JPanel{
 	 * @Method Name : JobSubmitionGraph
 	 *
 	 */	
-	public CAF_JobSubmitionGraph() {
+	public CAF_JobGraph() {
 		// TODO Auto-generated constructor stub
 		
 		KissManDatabase db = new KissManDatabase();
@@ -110,7 +110,7 @@ public class CAF_JobSubmitionGraph extends JPanel{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		JFrame f = new JFrame();
-		CAF_JobSubmitionGraph panel = new CAF_JobSubmitionGraph();
+		CAF_JobGraph panel = new CAF_JobGraph();
 		panel.setBackground(Color.YELLOW);
 		f.setLayout(null);
 		f.add(panel);

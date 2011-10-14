@@ -28,7 +28,7 @@ import kisti.server.connectToServer;
  * @Version:
  * 
  */
-public class CAF_WorkerNodeStatus extends JPanel {
+public class CAF_serverMon extends JPanel {
 
 	private JTable table;
 	private Object obj;
@@ -37,7 +37,7 @@ public class CAF_WorkerNodeStatus extends JPanel {
 	 * 
 	 * Desc : Constructor of WorkerNodeStatus.java class
 	 */
-	public CAF_WorkerNodeStatus() {
+	public CAF_serverMon() {
 
 		connectToServer sc = new connectToServer();
 		obj = sc.requestDataToServer("WorkerNodeStatus");
@@ -91,7 +91,7 @@ public class CAF_WorkerNodeStatus extends JPanel {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		JFrame f = new JFrame();
-		CAF_WorkerNodeStatus w = new CAF_WorkerNodeStatus();
+		CAF_serverMon w = new CAF_serverMon();
 		f.add(w);
 		f.setSize(650, 400);
 		f.setVisible(true);

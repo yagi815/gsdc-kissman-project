@@ -26,7 +26,7 @@ import kisti.module.database.KissManDatabase;
  * @Version:
  *
  */
-public class CAF_CDFJobTable extends JPanel{
+public class CAF_JobMon extends JPanel{
 
     private JTable table;
     
@@ -34,7 +34,7 @@ public class CAF_CDFJobTable extends JPanel{
      * 
      * Desc : Constructor of WorkerNodeStatus.java class
      */
-	public CAF_CDFJobTable() {
+	public CAF_JobMon() {
 		// TODO Auto-generated constructor stub
 		KissManDatabase db = new KissManDatabase();
 		Object obj = db.requestDataToDataBase("CDFJobTable");
@@ -96,7 +96,7 @@ public class CAF_CDFJobTable extends JPanel{
     public static void main(String[] args) {
             // TODO Auto-generated method stub
             JFrame f = new JFrame();
-            CAF_CDFJobTable w = new CAF_CDFJobTable();
+            CAF_JobMon w = new CAF_JobMon();
             f.add(w);
             f.setSize(650,400);
             f.setVisible(true);

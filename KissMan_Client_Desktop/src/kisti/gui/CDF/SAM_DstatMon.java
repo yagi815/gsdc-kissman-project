@@ -11,12 +11,12 @@ import javax.swing.JTextArea;
 
 import kisti.server.connectToServer;
 
-public class SAM_Dstat extends JPanel implements Runnable {
+public class SAM_DstatMon extends JPanel implements Runnable {
 	private static final int SCROLLBARS_VERTICAL_ONLY = 1;
 	JTextArea taHead, taBody;	
 	connectToServer server;
 
-	public SAM_Dstat() {
+	public SAM_DstatMon() {
 		// TODO Auto-generated constructor stub
 		String header = 
 			"----total-cpu-usage---- -dsk/total- -net/total- ---paging-- ---system--"+"\n"
@@ -69,7 +69,7 @@ public class SAM_Dstat extends JPanel implements Runnable {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		JFrame f = new JFrame();
-		SAM_Dstat w = new SAM_Dstat();
+		SAM_DstatMon w = new SAM_DstatMon();
 		f.add(w);
 		f.setSize(600, 450);
 		f.setVisible(true);

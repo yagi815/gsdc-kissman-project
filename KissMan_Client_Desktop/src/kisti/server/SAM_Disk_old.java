@@ -1,18 +1,33 @@
-package kisti.gui.CDF;
+package kisti.server;
 
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.util.Date;
 import java.util.Random;
 
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
-import kisti.server.SAMDiskData;
-import kisti.server.connectToServer;
+import kisti.module.database.KissManDatabase;
 
 
 /**
@@ -20,7 +35,7 @@ import kisti.server.connectToServer;
  */
 
 
-public class SAM_Disk extends JPanel implements Runnable{
+public class SAM_Disk_old extends JPanel implements Runnable{
 	private int nJob[]={};
 	private static int WIDTH = 1095;
 	private static int HEIGHT = 676;
@@ -31,53 +46,59 @@ public class SAM_Disk extends JPanel implements Runnable{
 	private static int GRAPH_TEXT_X = 500;
 	
 	private int  samCDF01, samCDF02, cdfGeneral; 
-	private String samCDF01_percentage, samCDF02_percentage, cdfGeneral_percentage;
 	private  JTextArea taDstat;
-	private connectToServer server;
-	private SAMDiskData samdiskData;
+	
 	/**
 	 * 
 	 * Desc :
 	 * @Method Name : JobSubmitionGraph
 	 */	
-	public SAM_Disk() {
+	public SAM_Disk_old() {
 		// TODO Auto-generated constructor stub
 
 		this.setSize(WIDTH, HEIGHT	);
-//		this.setBackground(Color.RED); //for test
+		this.setBackground(Color.red); //for test
 
-//
-//		taDstat = new JTextArea();
-//		taDstat.setBounds(400, 50, 300, 400);		
-//		this.add(taDstat);
 
-		server = new connectToServer();
-		samdiskData = new SAMDiskData();
+		taDstat = new JTextArea();
+		taDstat.setBounds(400, 50, 300, 400);		
+		this.add(taDstat);
+
 
 		Thread t = new Thread(this);
 		t.start();
-	}	
+	}
 	
+	public Object getDataFromServer(){
+		KissManDatabase db = new KissManDatabase();
+		Object obj = db.requestDataToDataBase("samDisk");
+		return obj;
+	}
+	
+	public void setDataOld(){
+		//getDataFromServer();		
+
+		samCDF01 = 180;
+		samCDF02 = 80;		
+		cdfGeneral = 250;
+						
+		repaint();
+	}
+
 	public void run(){
-		
+		//getDataFromServer();		
 		Random r = new Random();
 		
-//		while (true) {
-			samdiskData = (SAMDiskData)server.requestDataToServer("samDisk");
+		while (true) {	
+			samCDF01 = r.nextInt(300);
+			samCDF02 = r.nextInt(300);
+			cdfGeneral = r.nextInt(600); 
 			
-			samCDF01 = (int) (300*(samdiskData.cdf01_used / samdiskData.cdf01_size));
-			samCDF02 = (int) (300*(samdiskData.cdf02_used / samdiskData.cdf02_size));
-			cdfGeneral = (int) (300*(samdiskData.general_disk_used / samdiskData.general_disk_size));
-			samCDF01_percentage = samdiskData.cdf01_use_percentage;
-			samCDF02_percentage = samdiskData.cdf02_use_percentage;
-			cdfGeneral_percentage = samdiskData.general_disk_use_percentage;
-
-			repaint();
-			
-//			try {
-//				Thread.sleep(1000);
-//			} catch (Exception e) {}			
-//		}		
+			repaint();				
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {}			
+		}		
 	}
 	
 
@@ -86,11 +107,9 @@ public class SAM_Disk extends JPanel implements Runnable{
 	 */
 	public void paint(Graphics g){
 		
+		
 		g.clearRect(0, 0, getWidth(), getHeight());		
 
-		
-		
-		
 		// SAM cache 
 		g.setColor(Color.black);		
 		g.drawString("SAM Station", 15, 20);// or 글자 이미지
@@ -105,16 +124,9 @@ public class SAM_Disk extends JPanel implements Runnable{
 		g.fillRect(GRAPH_X, 130, GRAPH_TOTAL_WIDTH*2, GRAPH_TOTAL_HEIGHT);//BG
 		
 		g.setColor(  new Color(0, 102, 255) );
-		g.fillRect(GRAPH_X, 50, samCDF01*2, GRAPH_TOTAL_HEIGHT);
-		g.fillRect(GRAPH_X, 90, samCDF02*2, GRAPH_TOTAL_HEIGHT);		
-		g.fillRect(GRAPH_X, 130, cdfGeneral*2, GRAPH_TOTAL_HEIGHT);
-		
-		// percentage
-		g.setColor(Color.red);		
-//		g.drawString("-------------", 250, 10);
-		g.drawString(samCDF01_percentage, 450, 70);
-		g.drawString(samCDF02_percentage, 450, 110);
-		g.drawString(cdfGeneral_percentage, 450, 150);
+		g.fillRect(GRAPH_X, 50, samCDF01, GRAPH_TOTAL_HEIGHT);
+		g.fillRect(GRAPH_X, 90, samCDF02, GRAPH_TOTAL_HEIGHT);		
+		g.fillRect(GRAPH_X, 130, cdfGeneral, GRAPH_TOTAL_HEIGHT);
 
 	}
 	
@@ -129,8 +141,8 @@ public class SAM_Disk extends JPanel implements Runnable{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		JFrame f = new JFrame();
-		SAM_Disk panel = new SAM_Disk();		
-//		panel.setBackground(Color.YELLOW);
+		SAM_Disk_old panel = new SAM_Disk_old();		
+		panel.setBackground(Color.YELLOW);
 		f.setLayout(null);
 		f.add(panel);
 		f.setVisible(true);
@@ -144,6 +156,7 @@ public class SAM_Disk extends JPanel implements Runnable{
 					  public void windowIconified(WindowEvent e) {System.out.println("windowIconified"); }
 				}
 		);
-
+//		Thread t = new Thread(panel);
+//		t.start();
 	}
 }

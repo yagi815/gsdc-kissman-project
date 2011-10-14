@@ -38,7 +38,7 @@ import kisti.server.connectToServer;
  */
 
 
-public class SAM_Info extends JPanel implements Runnable{
+public class SAM_InfoMon extends JPanel implements Runnable{
 	private int nJob[]={};
 	private static int WIDTH = 500;
 	private static int HEIGHT = 400;
@@ -60,7 +60,7 @@ public class SAM_Info extends JPanel implements Runnable{
 	 * Desc :
 	 * @Method Name : JobSubmitionGraph
 	 */	
-	public SAM_Info() {
+	public SAM_InfoMon() {
 		// TODO Auto-generated constructor stub
 		this.setSize(WIDTH, HEIGHT	);
 
@@ -182,7 +182,7 @@ public class SAM_Info extends JPanel implements Runnable{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		JFrame f = new JFrame();
-		SAM_Info panel = new SAM_Info();		
+		SAM_InfoMon panel = new SAM_InfoMon();		
 		panel.setBackground(Color.YELLOW);
 		f.setLayout(null);
 		f.add(panel);

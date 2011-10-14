@@ -1,4 +1,4 @@
-package kisti.gui.CDF;
+package testCode;
 
 
 import java.awt.BorderLayout;
