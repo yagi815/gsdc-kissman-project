@@ -2,4 +2,6 @@ KissMan_Main
 kisti.gui.CDF
 kisti.gui.main
 kisti.module.database
+kisti.module.log
 kisti.server
+testCode
