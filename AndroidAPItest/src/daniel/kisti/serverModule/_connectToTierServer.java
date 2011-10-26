@@ -12,7 +12,7 @@ import java.net.Socket;
 import android.util.Log;
 import android.widget.Toast;
 
-public class connectToTierServer___ {
+public class _connectToTierServer {
 
 	/**
 	 * Desc :
@@ -23,7 +23,7 @@ public class connectToTierServer___ {
 	 */
 	
 
-	public connectToTierServer___() {
+	public _connectToTierServer() {
 		// TODO Auto-generated constructor stub
 			
 	}
