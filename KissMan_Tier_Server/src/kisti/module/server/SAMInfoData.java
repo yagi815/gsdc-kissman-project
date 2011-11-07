@@ -1,16 +1,19 @@
 package kisti.module.server;
 
-public class SAMInfoData {
+import java.io.Serializable;
+
+public class SAMInfoData implements Serializable{
 	
-	public Double memTotal;
-	public Double memUse;
-	public Double cpuUse;
-	public Double disk_write;
-	public Double disk_read;
-	public Double net_in;
-	public Double net_out;
+	public double memUsage;
+	public double memTotal;
+	public double memUse;
+	public double cpuUse;
+	public double disk_write;
+	public double disk_read;
+	public double net_in;
+	public double net_out;
 	
-	public SAMInfoData() {
-		// TODO Auto-generated constructor stub
-	}
+//	public SAMInfoData() {
+//		// TODO Auto-generated constructor stub
+//	}
 }

@@ -59,13 +59,13 @@ public class connectToServer {
 		} else if (serviceName.equals("QueueStatus")) {
 			obj = getCAFQueueStatus();
 		} else if (serviceName.equals("samInfo")) {
+			System.out.println("[--samInfo--]");
 			obj = getSamInfo();
 		} else if (serviceName.equals("getDstat")) {
 			obj = getSamDstat();
 		} else if (serviceName.equals("samDisk")) {
 			obj = getSamDisk();
-		} else if (serviceName.equals("test")) {
-			test();
+			System.out.println("[--samDisk--]");
 		} else {
 			System.out.println("잘못된 요청");
 		}
@@ -118,58 +118,7 @@ public class connectToServer {
 		}
 	}
 
-	public void test() {
-		try {
-			Socket socket1 = new Socket(IPADDR_DANIEL_SERVER, PORT);
-			BufferedInputStream bis1 = new BufferedInputStream(
-					socket1.getInputStream());
-			BufferedOutputStream bos1 = new BufferedOutputStream(
-					socket1.getOutputStream());
-			InputStreamReader isr1 = new InputStreamReader(bis1, "US-ASCII");
-
-			System.out.println("\nopen server");
-
-			int n = 16;
-
-			n <<= 8;
-			n |= 1;
-
-			String s = Integer.toString(n);
-
-			byte[] b = s.getBytes();
-
-			String cmdString = "df -h";
-			byte[] cmd = cmdString.getBytes();
-
-			bos1.write(b, 0, b.length);
-			bos1.write(cmd, 0, cmd.length);
-
-			bos1.flush();
-
-			String str1;// = reader.readLine();
-			char[] cbuf = new char[1024];
-
-			while (isr1.read(cbuf, 0, 1024) != -1) {
-				String str = new String(cbuf);
-				str = str.trim();
-
-				System.out.println("str: " + str);
-
-				for (int i = 0; i < 1024; i++)
-					cbuf[i] = '\0';
-			}
-
-			System.out.println("close server");
-			bis1.close();
-			bos1.close();
-			isr1.close();
-			socket1.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println(e.toString());
-		}
-	}
+	
 
 	/**
 	 * 
@@ -328,7 +277,7 @@ public class connectToServer {
 			// dos.flush();
 
 			char[] cbuf = new char[1024];
-			String resultData = null;
+			String resultData = "";
 			while (reader.read(cbuf, 0, 1024) != -1) {
 				String str = new String(cbuf);
 				str = str.trim();
@@ -494,7 +443,7 @@ public class connectToServer {
 					+ "df  /cdf02 | sed '1d' | awk '{print $2\" \" $3\" \" $5}'; \\"
 					+ "df  /home-osg/CDF | sed '1,2d' | awk '{print $1\" \" $2\" \" $4}'; \0";
 			char[] cbuf = new char[1024];
-			String resultData = null;
+			String resultData = "";
 			String str ="";
 
 			System.out.println(cmdString);

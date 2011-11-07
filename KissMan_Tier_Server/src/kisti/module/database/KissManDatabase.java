@@ -78,7 +78,7 @@ public class KissManDatabase {
 		//요청한 서비스 선택하여 해당 펑션 호출
 		Object obj = null;
 		
-		if (serviceName.equals("jobsubmition")) 
+		if (serviceName.equals("jobGraph")) 
 		{
 			obj = retriveJobsubmitionData();
 		} 

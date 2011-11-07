@@ -12,6 +12,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * <pre>
+ * kisti.module.server
+ *   |_ xmlParser.java
+ *
+ * </pre>
+ *
+ * Desc :
+ * @Company : KISTI
+ * @Author :daniel
+ * @Date   :2011. 10. 29. 오후 11:54:41
+ * @Version:
+ *
+ */
 public class xmlParser {
 
 	String result[][] = null;
