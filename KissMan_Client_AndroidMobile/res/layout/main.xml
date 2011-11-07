@@ -9,12 +9,17 @@
         android:layout_height="wrap_content"
         android:text="@string/hello" />
 
-    <Button android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/btn1" android:text="getData from tier" />
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/btn1" android:text="Caf_Helper" />
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/btn2" android:text="Sam_Helper" />
     
-    <ScrollView android:id="@+id/scroll1" android:layout_width="fill_parent" android:layout_height="fill_parent" >"
-        <TextView android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@+id/txt1" android:background="#990044" android:text="data is ... "/>
+    <ScrollView android:id="@+id/scroll1" android:layout_width="fill_parent" android:layout_height="wrap_content" >
+        <TextView android:height="200px" android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/txt1" android:background="#990044" android:text="Caf_Helper.. "/>
     </ScrollView>
-    "
+    
+    <ScrollView android:id="@+id/scroll2" android:layout_width="fill_parent" android:layout_height="wrap_content" >
+        <TextView android:height="200px" android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/txt2" android:background="#005544" android:text="Sam_Helper.. "/>
+    </ScrollView>
+    
     
     
 </LinearLayout>

@@ -1,17 +1,19 @@
 package daniel.kisti.serverModule;
 
-public class SAMDiskData {
+import java.io.Serializable;
+
+public class SAMDiskData implements Serializable{
 	
-	public Double cdf01_size;
-	public Double cdf01_used;
-	public Double cdf02_size;
-	public Double cdf02_used;
-	public Double general_disk_size;
-	public Double general_disk_used;
+	public double cdf01_size;
+	public double cdf01_used;
+	public double cdf02_size;
+	public double cdf02_used;
+	public double general_disk_size;
+	public double general_disk_used;
 	public String cdf01_use_percentage;
 	public String cdf02_use_percentage;
 	public String general_disk_use_percentage;
-	public SAMDiskData() {
-		// TODO Auto-generated constructor stub
-	}
+//	public SAMDiskData() {
+//		// TODO Auto-generated constructor stub
+//	}
 }
