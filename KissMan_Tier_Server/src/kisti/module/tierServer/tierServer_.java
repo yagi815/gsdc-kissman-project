@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TierServer {
+public class tierServer_ {
 
 	/**
 	 * Desc : API(client) 와 통신하기 위한 서버 모듈
