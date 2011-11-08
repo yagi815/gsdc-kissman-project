@@ -1,9 +1,18 @@
 package daniel.kisti.Helper;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Vector;
 
-import android.util.Log;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import android.text.GetChars;
+import android.util.Log;
 import daniel.kisti.serverModule.RequestDataToTierServer;
 
 
@@ -54,10 +63,77 @@ public class Caf_Helper {
 	}
 	
 	public String[][] getWorkernodeStatus(){
-		String[][] wkStatus = null;
-		wkStatus = (String[][])requestDataToTierServer.request("WorkerNodeStatus");
-		return wkStatus;
+		String wkStatus = null;
+		wkStatus = (String)requestDataToTierServer.request("WorkerNodeStatus");
+
+		/**
+		 * XML 파싱
+		 */
+		
+		Log.d("[Caf_Helper]", "parsing....................");
+		
+		String[][] result = new String[36][6];
+		
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			InputStream istream = new ByteArrayInputStream(wkStatus.getBytes("utf-8"));
+			Document doc = builder.parse(istream);
+			
+			Log.d("[Caf_Helper]", wkStatus);
+			
+			Element order = doc.getDocumentElement();
+			NodeList items = order.getElementsByTagName("Node");
+			
+			for (int i = 0; i < items.getLength(); i++) {
+				Element element = (Element)items.item(i);
+				
+				
+//				NameNodeMap attrs = items.get
+				
+				String name = getChildren(element, "name");
+				String state = getChildren(element, "state");
+				String np = getChildren(element, "np");
+				String status = getChildren(element, "status");
+
+				result[i][0] = name;
+				result[i][1] = state;
+				result[i][2] = np;
+
+				int start, end;
+				start = status.indexOf("jobs");
+				end = status.indexOf("varattr");
+				String jobs = status.substring(start+5, end-1);				
+				jobs = jobs.replace(" ", "\n");				
+
+				result[i][3] = jobs;
+//				Log.d("[Caf_Helper]", result[i][0]+":"+result[i][1]+result[i][2]+result[i][3]);
+			}
+			
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		return result;
 	}
+	
+	public static String getChildren(Element element, String tagName) {
+		NodeList list = element.getElementsByTagName(tagName);
+		Element cElement = (Element) list.item(0);
+
+		if (cElement.getFirstChild() != null) {
+			return cElement.getFirstChild().getNodeValue();
+		} else {
+			return "";
+		}
+	}
+	
+	public void xmlParsingTest(){
+		 
+	}
+	
+	
 	
 	public Vector getJobStatus(){
 		Vector jobStatus = null;		
@@ -70,8 +146,6 @@ public class Caf_Helper {
 		jobGraphData = (int[])requestDataToTierServer.request("DB_requestJobGraph");		
 		return jobGraphData;
 	}
-
-
 
 
 	/**
@@ -92,5 +166,9 @@ public class Caf_Helper {
 		System.out.println("--------------------------------------");
 		System.out.println(ch.getGraphData());
 		System.out.println("--------------------------------------");
+		
+		
+		
+		
 	}
 }

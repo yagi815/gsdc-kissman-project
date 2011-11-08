@@ -10,8 +10,6 @@ import java.net.Socket;
 import android.util.Log;
 import android.widget.MultiAutoCompleteTextView.Tokenizer;
 
-import daniel.kisti.serverModule.SAMInfoData;
-import daniel.kisti.serverModule.SAMDiskData;;
 
 public class RequestDataToTierServer {
 
@@ -25,8 +23,7 @@ public class RequestDataToTierServer {
 	
 	public RequestDataToTierServer() {
 		// TODO Auto-generated constructor stub
-		SAMInfoData samInfoData;
-		SAMDiskData samDiskData;
+
 		
 	}
 	
