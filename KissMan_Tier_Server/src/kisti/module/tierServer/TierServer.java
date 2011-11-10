@@ -1,17 +1,27 @@
 package kisti.module.tierServer;
 
 
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import kisti.module.database.KissManDatabase;
-//import kisti.module.server.SAMInfoData;
-import kisti.module.server.connectToServer;
+import kisti.module.database.ConnectToKissmanDB;
+import kisti.module.server.ConnectToGridServer;
+
+
+
+
 
 /**
  * <pre>
@@ -31,35 +41,19 @@ import kisti.module.server.connectToServer;
  * @Version:
  *
  */
- class SAMInfoData implements Serializable{
-	
-	public double memUsage;
-	public double memTotal;
-	public double memUse;
-	public double cpuUse;
-	public double disk_write;
-	public double disk_read;
-	public double net_in;
-	public double net_out;
-	
-//	public SAMInfoData() {
-//		// TODO Auto-generated constructor stub
-//	}
-}
 
 public class TierServer implements Runnable{
 
 	public static final int PORT = 8197;
 	public static final String IPADDR = "150.183.234.167";
-	public connectToServer moduleServer;	
+	public ConnectToGridServer moduleServer;	
 	public ServerSocket serverSocket=null;
-	
-	
+		
 	
 	public TierServer() {
 		// TODO Auto-generated constructor stub
 		
-		moduleServer = new connectToServer();
+		moduleServer = new ConnectToGridServer();
 		
 		try {
 			serverSocket = new ServerSocket(PORT);
@@ -76,7 +70,6 @@ public class TierServer implements Runnable{
 	public void run() {
 		// TODO Auto-generated method stub
 	
-		
 		try {
 			while (true) {
 			System.out.println("[server]------- Server Connecting ------ ");
@@ -94,44 +87,39 @@ public class TierServer implements Runnable{
 					Object obj = null;
 					
 					if (requestService.substring(0, 3).equals("DB_")) {//디비요청
-						KissManDatabase kissmanDB = new KissManDatabase();
-						if(requestService.equals("DB_requestCdfJobTable")){
-							obj = kissmanDB.requestDataToDataBase("CDFJobTable");
-						}else if (requestService.equals("DB_requestJobGraph")) {
-							obj = kissmanDB.requestDataToDataBase("jobGraph");
-						} 
+						ConnectToKissmanDB kissmanDB = new ConnectToKissmanDB();
+//						if(requestService.equals("DB_requestCdfJobTable")){
+//							obj = kissmanDB.requestDataToDataBase("CDFJobTable");
+//						}else if (requestService.equals("DB_requestJobGraph")) {
+//							obj = kissmanDB.requestDataToDataBase("jobGraph");
+//						} 
+						obj = kissmanDB.requestDataToDataBase("nothing....");
+						sendXMLDataToClient(obj, sock);
 					}else if(requestService.substring(0, 4).equals("URL_")){ //URL 요청
 
+						System.out.println("URL request ........ >>>>>> ");
+						String URL ="http://vobox02.sdfarm.kr/pbswebmon/pbswebmon-ce03/cgi-bin/graph.py?start=-24h";
+						
+						
 						/**
-						 * URL 객체 web형태로 저장하여 넘겨주는 방법!!!!
-						 */	
-
+						 * URL 에서 이미지를 가져와 저장하는 방법 
+						 */
+						String sendImageName = "ceGraphImage.bmp";
+						CeMonGraph cm = new CeMonGraph();
+						String imgUrl = cm.getImageUrl(URL);
+						if (cm.downloadImage(imgUrl , sendImageName)) {
+							System.out.println("download is done.....");
+						}
+//						
+						
+						
+						sendImgDataToClient(sendImageName, sock);
+		
 					}else{ // kissman server 요청						
 						obj = moduleServer.requestDataToServer(requestService);
-						
-						
+						sendXMLDataToClient(obj, sock);
 						System.out.println("[TierServer] kissman server 요청");
 					}
-					
-					SAMInfoData sam = new SAMInfoData();
-					sam.cpuUse = 1;
-					sam.disk_read = 19;
-					sam.net_in = 34;
-					sam.memTotal = 189;
-					String str = "adgasdgadsgs";
-					class A implements Serializable{
-						int a;
-						int b;
-					}
-					
-					A a = new A();
-					a.a = 1;
-					a.b = 10;
-					
-					obj = sam;
-				
-					sendDataToClient(obj, sock);
-					
 				} catch (Exception e) {
 					// TODO: handle exception
 					System.out.println(e.toString());
@@ -146,7 +134,40 @@ public class TierServer implements Runnable{
 			System.out.println(e.toString());
 		}
 	}
-	
+	/**
+	 * 
+	 * Desc :
+	 * @Method Name : sendImgDataToClient
+	 * @param fileName
+	 * @param sock
+	 *
+	 */	
+	public void sendImgDataToClient(String fileName, Socket sock){		
+		
+		try {
+			
+			File imgFile = new File(fileName);
+			FileInputStream fis = new FileInputStream(imgFile);
+			OutputStream os = sock.getOutputStream();
+			
+						
+			byte[] buffer = new byte[1024];
+			while (fis.available() > 0) {
+				int readSize = fis.read(buffer);
+				os.write(buffer,0,readSize);
+			}			
+			fis.close();
+			os.close();
+			sock.close();
+			
+			System.out.println("Sending img file  done.......>>>");			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println(e.toString());
+		}		
+	}	
 	/**
 	 * 
 	 * Desc :
@@ -155,12 +176,9 @@ public class TierServer implements Runnable{
 	 * @param sock
 	 *
 	 */
-	public void sendDataToClient(Object sendData, Socket sock){
+	public void sendXMLDataToClient(Object sendData, Socket sock){
 		ObjectOutputStream oos=null;
 		try {
-//			PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sock.getOutputStream())));
-//			out.println(sendData);
-//			out.flush();	
 			if (sendData == null) {
 				System.out.println("[TierServer]sendData is null...... ");
 			}
@@ -169,7 +187,7 @@ public class TierServer implements Runnable{
 			oos.flush();
 			
 			System.out.println("[TierServer] sendDataToClient...");
-//			System.out.println("[TierServer] senddata: "+sendData.toString());			
+			
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.println(e.toString());

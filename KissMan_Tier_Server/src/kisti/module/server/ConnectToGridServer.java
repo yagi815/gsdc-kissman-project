@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 
 import kisti.module.log.ErrorPopup;
 
+
 /**
  * <pre>
  * kisti.server
@@ -29,7 +30,7 @@ import kisti.module.log.ErrorPopup;
  * @Version:
  * 
  */
-public class connectToServer {
+public class ConnectToGridServer {
 
 	// 134.75.123.33 ce
 	private static final String IPADDR_DANIEL_SERVER = "150.183.234.168";
@@ -48,10 +49,18 @@ public class connectToServer {
 	 * 
 	 * Desc : Constructor of connectToServer.java class
 	 */
-	public connectToServer() {
+	public ConnectToGridServer() {
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * 
+	 * Desc :
+	 * @Method Name : requestDataToServer
+	 * @param serviceName
+	 * @return
+	 *
+	 */
 	public Object requestDataToServer(String serviceName) {
 		Object obj = null;
 		if (serviceName.equals("WorkerNodeStatus")) {
@@ -184,10 +193,7 @@ public class connectToServer {
 			StringTokenizer st = new StringTokenizer(resultData,"  ");
 			System.out.println("n of tokens : "+st.countTokens());
 
-//			for (int i = 0; i <7; i++) {
-//				System.out.println("-> "+st.nextToken());
-//				System.out.println(":");
-//			}
+
 			
 			if (st.countTokens() > 6) {			
 				data.memTotal= Double.parseDouble(st.nextToken());
@@ -367,17 +373,18 @@ public class connectToServer {
 
 			System.out.println(resultData );
 		
+			obj = resultData;
 		
-			bw.write(resultData	);			
-			bw.flush();
-			bw.close();
+//			bw.write(resultData	);			
+//			bw.flush();
+//			bw.close();
 			
 			
 			
 			
-			xmlParser parser = new xmlParser();
+//			xmlParser parser = new xmlParser();
 //			obj = parser.parseString("pbsnode_org.xml");
-			obj = parser.parseString("pbsnodes.xml");
+//			obj = parser.parseString("pbsnodes.xml");
 //			obj = parser.parseString("xxx.xml");
 
 			closeServer();
@@ -555,7 +562,7 @@ public class connectToServer {
 	 * 
 	 */
 	public static void main(String[] argv) {
-		connectToServer c = new connectToServer();
+		ConnectToGridServer c = new ConnectToGridServer();
 //		 c.requestDataToServer("WorkerNodeStatus");
 		// c.requestDataToServer("QueueStatus");
 		 c.requestDataToServer("samInfo");

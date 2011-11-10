@@ -3,7 +3,7 @@ package kisti.module.server;
 import java.io.Serializable;
 
 public class SAMInfoData implements Serializable{
-	
+	 private static final long serialVersionUID = 819781978197L;
 	public double memUsage;
 	public double memTotal;
 	public double memUse;

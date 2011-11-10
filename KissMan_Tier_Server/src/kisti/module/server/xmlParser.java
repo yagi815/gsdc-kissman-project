@@ -48,8 +48,8 @@ public class xmlParser {
 				String name = getChildren(element, "name");
 				String state = getChildren(element, "state");
 				String np = getChildren(element, "np");
-//				String properties = getChildren(element, "properties");
-//			 String ntype = getChildren(element, "ntype");
+//			String properties = getChildren(element, "properties");
+//			String ntype = getChildren(element, "ntype");
 				String status = getChildren(element, "status");
 
 				result[i][0] = name;
