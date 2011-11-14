@@ -6,14 +6,25 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.StringTokenizer;
 
-import kisti.module.log.ErrorPopup;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import kisti.module.log.ErrorPopup;
 
 /**
  * <pre>
@@ -56,10 +67,11 @@ public class ConnectToGridServer {
 	/**
 	 * 
 	 * Desc :
+	 * 
 	 * @Method Name : requestDataToServer
 	 * @param serviceName
 	 * @return
-	 *
+	 * 
 	 */
 	public Object requestDataToServer(String serviceName) {
 		Object obj = null;
@@ -68,13 +80,11 @@ public class ConnectToGridServer {
 		} else if (serviceName.equals("QueueStatus")) {
 			obj = getCAFQueueStatus();
 		} else if (serviceName.equals("samInfo")) {
-			System.out.println("[--samInfo--]");
 			obj = getSamInfo();
 		} else if (serviceName.equals("getDstat")) {
 			obj = getSamDstat();
 		} else if (serviceName.equals("samDisk")) {
 			obj = getSamDisk();
-			System.out.println("[--samDisk--]");
 		} else {
 			System.out.println("잘못된 요청");
 		}
@@ -102,7 +112,7 @@ public class ConnectToGridServer {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.toString());
-//			JOptionPane.showMessageDialog(this, "Message");
+			// JOptionPane.showMessageDialog(this, "Message");
 			ErrorPopup popup = new ErrorPopup("Can't open server");
 			System.exit(-1);
 		}
@@ -127,8 +137,6 @@ public class ConnectToGridServer {
 		}
 	}
 
-	
-
 	/**
 	 * 
 	 * Desc :
@@ -138,9 +146,7 @@ public class ConnectToGridServer {
 	 * 
 	 */
 	public Object getSamInfo() {
-
 		Object obj = null;
-		SAMInfoData data = new SAMInfoData();
 
 		try {
 			openServer(IPADDR_SAM);
@@ -152,76 +158,95 @@ public class ConnectToGridServer {
 
 			byte[] b = s.getBytes();
 
-			String cmdString = "cat /proc/meminfo | sed '3,$d' | awk '{print $2\" \"}';  \\" +			
-			"dstat 1 1 | sed '1,3d' | awk '{print $3\" \"$7\" \"$8\" \"$9\" \"$10}'; \0";
-			
-			System.out.println(cmdString);
+			String cmdString = "cat /proc/meminfo | sed '3,$d' | awk '{print $2\" \"}';  \\"
+					+ "dstat 1 1 | sed '1,3d' | awk '{print $3\" \"$7\" \"$8\" \"$9\" \"$10}'; \0";
 
+			System.out.println(cmdString);
 
 			dos.write(b, 0, b.length);
 			dos.write(cmdString.getBytes(), 0, cmdString.getBytes().length);
 
-			// dos.flush();
-
 			char[] cbuf = new char[1024];
-			
 
 			String resultData = "";
 			while (reader.read(cbuf, 0, 1024) != -1) {
 				String str = new String(cbuf);
 				str = str.trim();
-				str +=" ";
+				str += " ";
 
-				resultData += str;				
+				resultData += str;
 				resultData = resultData.replace("|", " ");
-				
-				
-				
-								
-			
 
 				for (int i = 0; i < 1024; i++)
 					cbuf[i] = '\0';
 			}
+			StringTokenizer st = new StringTokenizer(resultData, "  ");
 
-			
-			
-			System.out.println("resultData : "+resultData);
-			
-			
-			
-			StringTokenizer st = new StringTokenizer(resultData,"  ");
-			System.out.println("n of tokens : "+st.countTokens());
+			// make XML
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
+			System.out.println("getSamInfo:"+resultData);
+			// root element
 
-			
-			if (st.countTokens() > 6) {			
-				data.memTotal= Double.parseDouble(st.nextToken());
-				data.memUse = Double.parseDouble(st.nextToken());
-				data.cpuUse = 100 - Double.parseDouble(st.nextToken());
-				
-				data.disk_read = Double.parseDouble(parseString(st.nextToken()));
-				data.disk_write = Double.parseDouble(parseString(st.nextToken()));
-				data.net_in= Double.parseDouble(parseString(st.nextToken()));
-				data.net_out = Double.parseDouble(parseString(st.nextToken()));
-			}else {
-				data.memTotal= 1.0;
-				data.memUse = 1.0;
-				data.cpuUse = 0.0;
-				
-				data.disk_read = 0.0;
-				data.disk_write = 0.0;
-				data.net_in = 0.0;
-				data.net_out = 0.0;
+			Document doc = docBuilder.newDocument();
+			Element rootElement = doc.createElement("Data");
+			doc.appendChild(rootElement);
+
+			Element node = doc.createElement("Node");
+			rootElement.appendChild(node);
+
+			Element memTotal = doc.createElement("memTotal");
+			memTotal.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(memTotal);
+			Element memUse = doc.createElement("memUse");
+			memUse.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(memUse);
+//			Element cpuUse = doc.createElement("cpuUse");
+//			cpuUse.appendChild(doc.createTextNode(st.nextToken()));
+//			node.appendChild(cpuUse);
+			Element diskRead = doc.createElement("diskRead");
+			diskRead.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(diskRead);
+			Element diskWrite = doc.createElement("diskWrite");
+			diskWrite.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(diskWrite);
+			Element netIn = doc.createElement("netIn");
+			netIn.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(netIn);
+			Element netOut = doc.createElement("netOut");
+			netOut.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(netOut);
+
+			// 파일에 쓰기
+			TransformerFactory transformerFactory = TransformerFactory
+					.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			transformer.setOutputProperty(OutputKeys.INDENT, "No");
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(new FileOutputStream(
+					new File("SamInfo.xml")));
+			transformer.transform(source, result);
+			System.out.println("File saved!");
+
+			// 스트링으로 축출
+			File xmlFile = new File("SamInfo.xml");
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					new FileInputStream(xmlFile.getPath())));
+			String xmlString = "";
+			String str = "";
+			while ((str = br.readLine()) != null) {
+				xmlString += str;
 			}
 
+			obj = xmlString;
 
-			
-			
-			obj = data;
+			br.close();
+			dos.close();
 
 			closeServer();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.toString());
@@ -229,21 +254,23 @@ public class ConnectToGridServer {
 
 		return obj;
 	}
-/**
- * 
- * Desc :
- * @Method Name : parseString
- * @param str
- * @return
- *
- */
+
+	/**
+	 * 
+	 * Desc :
+	 * 
+	 * @Method Name : parseString
+	 * @param str
+	 * @return
+	 * 
+	 */
 	String parseString(String str) {
 
-		if (str.contains("B")) {			
-			str = str.replace("B", "");			
-		} else if (str.contains("k")) {			
-			str = str.replace("k", "000");			
-		} else if(str.contains("M")){
+		if (str.contains("B")) {
+			str = str.replace("B", "");
+		} else if (str.contains("k")) {
+			str = str.replace("k", "000");
+		} else if (str.contains("M")) {
 			str = str.replace("M", "000000");
 		} else {
 			System.out.println(str);
@@ -251,7 +278,7 @@ public class ConnectToGridServer {
 
 		return str;
 	}
-	
+
 	/**
 	 * 
 	 * Desc :
@@ -340,7 +367,7 @@ public class ConnectToGridServer {
 
 			while (reader.read(cbuf, 0, 1024) != -1) {
 				String str = new String(cbuf);
-				
+
 				str = str.trim();
 				resultData += str;
 
@@ -348,44 +375,37 @@ public class ConnectToGridServer {
 					cbuf[i] = '\0';
 			}
 
-
-			
 			File xmlFile = new File("pbsnodes.xml");
-			
-			if(xmlFile.exists()){
+
+			if (xmlFile.exists()) {
 				xmlFile.delete();
 			}
 			xmlFile.createNewFile();
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(xmlFile.getPath()),"UTF-8"));
-			
-//			String tmp = resultData;
+					new FileOutputStream(xmlFile.getPath()), "UTF-8"));
+
+			// String tmp = resultData;
 			resultData = resultData.replace("\000", "");
-			resultData  = resultData.replace("\0x0","");
-//			 resultData.replace("\r","");
-//			 resultData.replace("\n","");
-//			 resultData.replace("\0x10","");
-//			 resultData.replace("\0x13","");
-			
-//			resultData = stripNonValidXMLCharacters(resultData);
+			resultData = resultData.replace("\0x0", "");
+			// resultData.replace("\r","");
+			// resultData.replace("\n","");
+			// resultData.replace("\0x10","");
+			// resultData.replace("\0x13","");
 
+			// resultData = stripNonValidXMLCharacters(resultData);
 
+			System.out.println(resultData);
 
-			System.out.println(resultData );
-		
 			obj = resultData;
-		
-//			bw.write(resultData	);			
-//			bw.flush();
-//			bw.close();
-			
-			
-			
-			
-//			xmlParser parser = new xmlParser();
-//			obj = parser.parseString("pbsnode_org.xml");
-//			obj = parser.parseString("pbsnodes.xml");
-//			obj = parser.parseString("xxx.xml");
+
+			// bw.write(resultData );
+			// bw.flush();
+			// bw.close();
+
+			// xmlParser parser = new xmlParser();
+			// obj = parser.parseString("pbsnode_org.xml");
+			// obj = parser.parseString("pbsnodes.xml");
+			// obj = parser.parseString("xxx.xml");
 
 			closeServer();
 
@@ -434,7 +454,7 @@ public class ConnectToGridServer {
 	 */
 	public Object getSamDisk() {
 		Object obj = null;
-		SAMDiskData data = new SAMDiskData();
+		
 
 		try {
 			openServer(IPADDR_SAM);
@@ -451,7 +471,7 @@ public class ConnectToGridServer {
 					+ "df  /home-osg/CDF | sed '1,2d' | awk '{print $1\" \" $2\" \" $4}'; \0";
 			char[] cbuf = new char[1024];
 			String resultData = "";
-			String str ="";
+			String str = "";
 
 			System.out.println(cmdString);
 			dos.write(b, 0, b.length);
@@ -470,32 +490,86 @@ public class ConnectToGridServer {
 					cbuf[j] = '\0';
 			}
 
-			System.out.println("--" + str);
-
 			StringTokenizer st = new StringTokenizer(str, " ");
 
+			/**
+			 * xml 만드리
+			 */
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			Document doc = docBuilder.newDocument();
+			Element rootElement = doc.createElement("Data");
+			doc.appendChild(rootElement);
 
-			data.cdf01_size = Double.parseDouble(st.nextToken());
-			data.cdf01_used = Double.parseDouble(st.nextToken());
-			data.cdf01_use_percentage = st.nextToken();
+			Element node = doc.createElement("Node");
+			rootElement.appendChild(node);
 
-			data.cdf02_size = Double.parseDouble(st.nextToken());
-			data.cdf02_used = Double.parseDouble(st.nextToken());
-			data.cdf02_use_percentage = st.nextToken();
+			Element cdf01Size = doc.createElement("cdf01Size");
+			cdf01Size.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(cdf01Size);
+			Element cdf01Used = doc.createElement("cdf01Used");
+			cdf01Used.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(cdf01Used);
+			Element cdf01Usage = doc.createElement("cdf01Usage");
+			cdf01Usage.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(cdf01Usage);
+			Element cdf02Size = doc.createElement("cdf02Size");
+			cdf02Size.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(cdf02Size);
+			Element cdf02Used = doc.createElement("cdf02Used");
+			cdf02Used.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(cdf02Used);
+			Element cdf02Usage = doc.createElement("cdf02Usage");
+			cdf02Usage.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(cdf02Usage);
+			Element generalDiskSize = doc.createElement("generalDiskSize");
+			generalDiskSize.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(generalDiskSize);
+			Element generalDiskUsed = doc.createElement("generalDiskUsed");
+			generalDiskUsed.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(generalDiskUsed);
+			Element generalDiskUsage = doc.createElement("generalDiskUsage");
+			generalDiskUsage.appendChild(doc.createTextNode(st.nextToken()));
+			node.appendChild(generalDiskUsage);
 
-			data.general_disk_size = Double.parseDouble(st.nextToken());
-			data.general_disk_used = Double.parseDouble(st.nextToken());
-			data.general_disk_use_percentage = st.nextToken();
-
+			/**
+			 * XML 파일로 쓰기
+			 */
+			TransformerFactory transformerFactory = TransformerFactory
+					.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			transformer.setOutputProperty(OutputKeys.INDENT, "No");
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(new FileOutputStream(
+					new File("SamDisk.xml")));
+			transformer.transform(source, result);
+			
+			/**
+			 * String 으로 축출... 
+			 */
+			File xmlFile = new File("SamDisk.xml");
+	        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(xmlFile.getPath())));
+	        String xmlString="";
+	        String tmp="";
+	        while ( (tmp = br.readLine()) != null) {
+				xmlString += tmp;					
+			}
+			
+	        obj = xmlString;			
+	        br.close();
+			
+			dos.close();
 			closeServer();
-			obj = data;
+
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.toString());
 		}
 
-		return data;
+		return obj;
 	}
 
 	/**
@@ -543,8 +617,48 @@ public class ConnectToGridServer {
 
 			}
 
-			closeServer();
-			obj = resultData;
+			/**
+			 * XML 데이터 생성
+			 */		
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			Document doc = docBuilder.newDocument();
+			Element rootElement = doc.createElement("Data");
+			doc.appendChild(rootElement);
+			Element node = doc.createElement("Node");
+			rootElement.appendChild(node);
+			Element dstat = doc.createElement("dstat");
+			dstat.appendChild(doc.createTextNode(resultData));
+			node.appendChild(dstat);
+			
+			/**
+			 * XML 파일로 저장			 * 
+			 */		
+	        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+	        Transformer transformer = transformerFactory.newTransformer();
+	        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	        transformer.setOutputProperty(OutputKeys.INDENT, "No");       
+	        DOMSource source = new DOMSource(doc);
+	        StreamResult result = new StreamResult(new FileOutputStream(new File("SamDstat.xml")));	        
+	        transformer.transform(source, result);
+
+	        /**
+	         * String 으로 축출... 
+	         */
+	        File xmlFile = new File("SamDstat.xml");
+	        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(xmlFile.getPath())));
+	        String xmlString="";
+	        String str="";
+	        while ( (str = br.readLine()) != null) {
+				xmlString += str;					
+			}
+			
+	        
+	        obj = xmlString;
+			
+			
+			closeServer();			
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -563,9 +677,9 @@ public class ConnectToGridServer {
 	 */
 	public static void main(String[] argv) {
 		ConnectToGridServer c = new ConnectToGridServer();
-//		 c.requestDataToServer("WorkerNodeStatus");
+		// c.requestDataToServer("WorkerNodeStatus");
 		// c.requestDataToServer("QueueStatus");
-		 c.requestDataToServer("samInfo");
+		c.requestDataToServer("samInfo");
 		// c.requestDataToServer("getDstat");
 		// c.requestDataToServer("samDisk");
 		// c.requestDataToServer("test");

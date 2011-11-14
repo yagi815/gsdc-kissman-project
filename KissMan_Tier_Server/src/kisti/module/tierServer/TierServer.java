@@ -20,9 +20,6 @@ import kisti.module.database.ConnectToKissmanDB;
 import kisti.module.server.ConnectToGridServer;
 
 
-
-
-
 /**
  * <pre>
  * kisti.module.tierServer
@@ -72,18 +69,16 @@ public class TierServer implements Runnable{
 	
 		try {
 			while (true) {
-			System.out.println("[server]------- Server Connecting ------ ");
-			
-			
-			
+			System.out.println("[server]------- Server Connecting ------ ");			
+	
 				Socket sock = serverSocket.accept();
 				System.out.println("[server]server reciving....");
 				try {
 					BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 					String requestService = in.readLine();
 					System.out.println("[server] requestServer: "+ requestService);
-//					Object obj = moduleServer.requestDataToServer(str);
-				
+
+
 					Object obj = null;
 					
 					if (requestService.substring(0, 3).equals("DB_")) {//디비요청
@@ -102,7 +97,7 @@ public class TierServer implements Runnable{
 						
 						
 						/**
-						 * URL 에서 이미지를 가져와 저장하는 방법 
+						 * URL 에서 이미지 url 축출하고 이미지를 다운로드 
 						 */
 						String sendImageName = "ceGraphImage.bmp";
 						CeMonGraph cm = new CeMonGraph();
@@ -110,8 +105,7 @@ public class TierServer implements Runnable{
 						if (cm.downloadImage(imgUrl , sendImageName)) {
 							System.out.println("download is done.....");
 						}
-//						
-						
+				
 						
 						sendImgDataToClient(sendImageName, sock);
 		
