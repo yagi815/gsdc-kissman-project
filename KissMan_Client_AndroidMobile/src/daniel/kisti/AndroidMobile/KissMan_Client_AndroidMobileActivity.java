@@ -3,8 +3,8 @@ package daniel.kisti.AndroidMobile;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.NetworkInfo.State;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import daniel.kisti.Helper.Caf_Helper;
+import daniel.kisti.Helper.Sam_Helper;
 
 public class KissMan_Client_AndroidMobileActivity extends Activity {
     /** Called when the activity is first created. */
@@ -25,6 +26,7 @@ public class KissMan_Client_AndroidMobileActivity extends Activity {
         final Button btn = (Button)findViewById(R.id.btn1);
         final TextView txt = (TextView)findViewById(R.id.txt1);
         final Button btn2= (Button)findViewById(R.id.btn2);      
+        final Button btn3= (Button)findViewById(R.id.btn3);
 //        final TextView txt2 = (TextView)findViewById(R.id.txt2);
         final ImageView imgView = (ImageView)findViewById(R.id.imageView1);
         btn.setOnClickListener(new OnClickListener() {
@@ -80,6 +82,44 @@ public class KissMan_Client_AndroidMobileActivity extends Activity {
 		});
         
         btn2.setOnClickListener(new OnClickListener() {			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Sam_Helper samHelper = new Sam_Helper();
+//				String status = cafHelper.getStatus();
+//				String status = ">"+samHelper.getMemTotal();
+
+//				txt.append(status);
+//				samHelper.getStatus();
+
+				txt.append(">"+samHelper.getCpuUse());
+				txt.append(">"+samHelper.getMemTotal());
+				txt.append(">"+samHelper.getMemUsage());
+				txt.append(">"+samHelper.getMemUse());
+				txt.append(">"+samHelper.getDiskIn());
+				txt.append(">"+samHelper.getDiskOut());				
+				txt.append(">"+samHelper.getDiskOut());
+				txt.append(">"+samHelper.getNetIn());
+				txt.append(">"+samHelper.getNetOut());	
+
+				txt.append(">------------------------------------<\n");
+				txt.append(">"+samHelper.getCdf01DiskSize());
+				txt.append(">"+samHelper.getCdf01DiskUsed());
+				txt.append(">"+samHelper.getCdf01DiskUsage());
+				txt.append(">"+samHelper.getCdf02DiskSize());
+				txt.append(">"+samHelper.getCdf02DiskUsed());
+				txt.append(">"+samHelper.getCdf02DiskUsage());
+				txt.append(">"+samHelper.getCdfUserDiskSize());
+				txt.append(">"+samHelper.getCdfUserDiskUsed());
+				txt.append(">"+samHelper.getCdfUserDiskUsage());
+
+//				samHelper.loadSamDiskData();
+
+			}
+		});
+        
+        
+        btn3.setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
